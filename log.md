@@ -1,5 +1,53 @@
 # 📝 VibeParse Project Log
 
+### June 2024: Video generation working but sometimes rendered code is too small
+- [2024-06-XX] Video generation pipeline is functional and produces scene-based videos from Markdown scripts.
+- However, rendered code is sometimes too small for optimal viewing; further improvements to dynamic font sizing or layout may be needed.
+
+### June 2024 (Video Generation): CodeHighlight Attribute Update
+- [2024-06-XX] Updated video generation to use correct CodeHighlight attributes:
+  - Changed from `explanation` to `description` to match the model
+  - Updated all variable names and file paths to reflect this change
+  - Ensures proper handling of code highlight descriptions
+
+### June 2024 (Video Generation): MoviePy 2.2.1 Audio Method Update
+- [2024-06-XX] Updated MoviePy audio handling to match 2.2.1 API:
+  - Changed from `set_audio()` to `with_audio()` method
+  - Updated all clip audio assignments to use the new method
+  - Ensures proper audio synchronization in multi-segment videos
+
+### June 2024 (Video Generation): MoviePy 2.2.1 Resize Effect Update
+- [2024-06-XX] Updated MoviePy resize functionality to match 2.2.1 API:
+  - Changed from direct `resize()` method to using `Resize` effect class
+  - Using `with_effects([Resize(new_size=size)])` for resizing clips
+  - Ensures proper video dimensions for TikTok/Reels format (1080x1920)
+
+### June 2024 (Video Generation): MoviePy 2.2.1 Duration Method Update
+- [2024-06-XX] Updated MoviePy duration setting to match 2.2.1 API:
+  - Changed from `set_duration()` to `with_duration()` method
+  - Updated all clip duration settings to use the new method
+  - Ensures proper timing for multi-segment videos
+
+### June 2024 (Video Generation): MoviePy 2.2.1 Import Updates
+- [2024-06-XX] Updated MoviePy imports to match 2.2.1 API:
+  - Changed from `moviepy.editor` to direct imports from `moviepy`
+  - Updated imports for `AudioFileClip`, `ImageClip`, `CompositeVideoClip`, and `concatenate_videoclips`
+  - Ensures compatibility with latest MoviePy version
+
+### June 2024 (Video Generation): Multi-Segment Video Generation
+- [2024-06-XX] Enhanced video generation to support full scene content:
+  - Now generates separate video segments for scene introduction and each code highlight
+  - Each segment includes both explanation and code with synchronized audio
+  - Uses temporary directory for intermediate files during generation
+  - Concatenates all segments into a single video while maintaining proper timing
+  - Maintains TikTok/Reels format (1080x1920) throughout
+
+### June 2024 (Video Generation): MoviePy 2.2.1 API Update
+- [2024-06-XX] Updated video composer to use MoviePy 2.2.1 API:
+  - Using `Resize` class from `moviepy.video.fx.Resize` module
+  - Using `clip.with_effects([Resize(new_size=size)])` for resizing
+  - Maintains compatibility with TikTok/Reels format (1080x1920)
+
 ### June 2024 (Batching Milestone): Multi-File Script Generation with Batching
 - [2024-06-XX] Added support for generating scripts from multiple files in a codebase using per-file batching to stay within LLM token limits.
 - Each file is token-estimated and grouped into batches; batches are processed sequentially and results are aggregated into a single Markdown script.
