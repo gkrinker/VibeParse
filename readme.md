@@ -1,5 +1,9 @@
 # 🧠 Code Explainer Video App – AI-Powered Architecture 
 
+> 📚 Related Documents:
+> - [Product Requirements Document (PRD)](prd.md)
+> - [Development Plan](development-plan.md)
+
 Build an app that takes a link to a public GitHub file or directory and creates a video that explains the code in simple terms. Users can select their coding proficiency and desired depth (line-by-line, chunk-by-chunk, or key insights).
 
 ---
