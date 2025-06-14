@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from src.api.routes import code
+from .routes import code, script, test
 
 app = FastAPI(
     title="VibeParse",
@@ -19,6 +19,12 @@ app.add_middleware(
 
 # Include routers
 app.include_router(code.router, prefix="/api", tags=["code"])
+app.include_router(script.router, prefix="/api", tags=["script"])
+app.include_router(test.router, prefix="/api", tags=["test"])
+
+@app.get("/")
+async def root():
+    return {"message": "Welcome to VibeParse API"}
 
 @app.get("/health")
 async def health_check():
