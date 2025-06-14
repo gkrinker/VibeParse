@@ -15,13 +15,13 @@ This product is purpose-built for that moment—the early days of 'vibe coding'�
 ## 👥 User Segments (Pain is the Pitch)
 
 ### 1. Coding Bootcamp Students
-- **Pain**: You paste in some Copilot code that sort of does what you want, but you have no idea how it works. You try to trace it line by line, but it feels like deciphering hieroglyphics. You don’t want to keep asking instructors dumb questions, and you’re too early to read documentation fluently. AI coding was supposed to save time—not leave you more lost.
+- **Pain**: You paste in some Copilot code that sort of does what you want, but you have no idea how it works. You try to trace it line by line, but it feels like deciphering hieroglyphics. You don't want to keep asking instructors dumb questions, and you're too early to read documentation fluently. AI coding was supposed to save time—not leave you more lost.
 - **Distribution Strategy**:
   - Partner with bootcamps to offer free trials
   - Target Reddit (r/learnprogramming) and Discord servers with short explainer clips
 
 ### 2. Junior Developers / Interns
-- **Pain**: You used ChatGPT to scaffold your feature, and now there’s a bug. You don’t even remember how half of this logic came together. You stare at a wall of code, unsure where the problem starts, too embarrassed to ask your senior dev to walk through what *your* commit does. You just want a five-minute breakdown so you can fix it, fast.
+- **Pain**: You used ChatGPT to scaffold your feature, and now there's a bug. You don't even remember how half of this logic came together. You stare at a wall of code, unsure where the problem starts, too embarrassed to ask your senior dev to walk through what *your* commit does. You just want a five-minute breakdown so you can fix it, fast.
 - **Distribution Strategy**:
   - Share video explainers for trending GitHub repos on LinkedIn
   - Twitter/X ads targeting early-career devs
@@ -35,7 +35,7 @@ This product is purpose-built for that moment—the early days of 'vibe coding'�
   - LinkedIn ads focused on PMs and tech leads
 
 ### 4. Dev Content Creators / Educators
-- **Pain**: You’re working on a tutorial about using AI to build apps fast, but you barely understand the code Copilot wrote. You know it works, but now you have to explain it, line by line, to your audience. You spend more time reverse-engineering than teaching. What should be effortless content turns into a research project.
+- **Pain**: You're working on a tutorial about using AI to build apps fast, but you barely understand the code Copilot wrote. You know it works, but now you have to explain it, line by line, to your audience. You spend more time reverse-engineering than teaching. What should be effortless content turns into a research project.
 - **Distribution Strategy**:
   - Partner with YouTubers, Twitch streamers, and Udemy instructors
   - Create an affiliate/referral program with generous rev share
@@ -174,6 +174,15 @@ These features are not required for the initial launch but represent high-levera
 ### 📊 Intelligence and History
 - **User History and Insights**: Show users a history of their analyzed files and track improvement over time.
 - **Smart Suggestions**: Recommend related repos or explanations based on previous usage.
+
+### 📝 Non-MVP Feature: Reading Mode for Scripts
+- Allow users to view the generated explanation script as formatted Markdown or HTML for reading, not just for video consumption.
+- This mode should provide clear scene structure, code highlights, and explanations for users who prefer to read rather than watch a video.
+
+## ⚠️ Additional Risk Mitigation (June 2024)
+- Before production, enforce a hard limit on the number of files and/or total code size (lines/tokens) per request to prevent LLM overload and ensure reliability.
+- If a file or batch is too large for the LLM, handle gracefully: inform the user, skip the file, and suggest splitting or reducing scope.
+- Batching strategy: group files into batches under the LLM token limit; if a single file is too large, handle as above.
 
 ---
 

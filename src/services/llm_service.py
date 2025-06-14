@@ -32,21 +32,22 @@ class LLMService:
         Returns:
             Script object containing scenes and code highlights
         """
-        # Construct the prompt based on proficiency and depth
-        prompt = self._construct_prompt(files, proficiency, depth)
-        
-        # Call OpenAI API
-        response = await self.client.chat.completions.create(
-            model="gpt-4o",
-            messages=[
-                {"role": "system", "content": self._get_system_prompt(proficiency)},
-                {"role": "user", "content": prompt}
-            ],
-            temperature=0.7
-        )
-        
-        # Parse the response into a Script object
-        return self._parse_response(response.choices[0].message.content, files)
+        print(f"[LLM] Starting script generation for {len(files)} files (proficiency: {proficiency}, depth: {depth})...")
+        try:
+            prompt = self._construct_prompt(files, proficiency, depth)
+            response = await self.client.chat.completions.create(
+                model="gpt-4o",
+                messages=[
+                    {"role": "system", "content": self._get_system_prompt(proficiency)},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.7
+            )
+            print(f"[LLM] Script generation completed for {len(files)} files.")
+            return self._parse_response(response.choices[0].message.content, files)
+        except Exception as e:
+            print(f"[LLM] Error during script generation: {e}")
+            raise
     
     def _construct_prompt(self, files: List[Dict[str, str]], proficiency: str, depth: str) -> str:
         """Construct the prompt for the LLM based on files and parameters."""

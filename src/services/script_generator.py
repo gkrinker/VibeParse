@@ -4,6 +4,7 @@ from pathlib import Path
 from .github_service import GitHubService
 from .llm_service import LLMService
 from ..models.script import Script
+import tiktoken
 
 class ScriptGenerator:
     def __init__(self):
@@ -19,7 +20,7 @@ class ScriptGenerator:
         save_to_disk: bool = True
     ) -> Script:
         """
-        Generate a script from a GitHub URL.
+        Generate a script from a GitHub URL with per-file batching and error handling for large files.
         
         Args:
             github_url: URL of the GitHub file or directory
@@ -34,14 +35,59 @@ class ScriptGenerator:
         # Fetch code from GitHub
         files = await self.github_service.fetch_code(github_url, file_types)
         
-        # Generate script using LLM
-        script = await self.llm_service.generate_script(files, proficiency, depth)
-        
+        # Tokenizer for estimation
+        enc = tiktoken.encoding_for_model("gpt-4o")
+        MAX_TOKENS = 10000  # Safe threshold per batch
+        batches = []
+        current_batch = []
+        current_tokens = 0
+        skipped_files = []
+        for f in files:
+            # Estimate tokens for this file
+            file_tokens = len(enc.encode(f['content']))
+            # If file itself is too large, skip it
+            if file_tokens > MAX_TOKENS:
+                print(f"[Batching] Skipping file '{f['path']}' (tokens: {file_tokens}) - too large for a single batch.")
+                skipped_files.append(f['path'])
+                continue
+            # If adding this file would exceed the batch limit, start a new batch
+            if current_tokens + file_tokens > MAX_TOKENS and current_batch:
+                print(f"[Batching] Created batch with {len(current_batch)} files, total tokens: {current_tokens}.")
+                batches.append(current_batch)
+                current_batch = []
+                current_tokens = 0
+            current_batch.append(f)
+            current_tokens += file_tokens
+        if current_batch:
+            print(f"[Batching] Created batch with {len(current_batch)} files, total tokens: {current_tokens}.")
+            batches.append(current_batch)
+        # Process each batch
+        all_scenes = []
+        for idx, batch in enumerate(batches):
+            print(f"[Batching] Processing batch {idx+1}/{len(batches)} with {len(batch)} files...")
+            try:
+                script = await self.llm_service.generate_script(batch, proficiency, depth)
+                print(f"[Batching] Batch {idx+1} processed successfully. Scenes added: {len(script.scenes)}.")
+                all_scenes.extend(script.scenes)
+            except Exception as e:
+                print(f"[Batching] Error processing batch {idx+1}: {e}. Skipping batch.")
+                skipped_files.extend([f['path'] for f in batch])
+                continue
+        # Add a scene at the start if any files were skipped
+        if skipped_files:
+            from ..models.script import Scene
+            skip_scene = Scene(
+                title="Skipped Files",
+                duration=10,
+                content="The following files were skipped because they were too large to process in a single request:\n" + "\n".join(skipped_files),
+                code_highlights=[]
+            )
+            all_scenes.insert(0, skip_scene)
+        final_script = Script(scenes=all_scenes)
         # Save to disk if requested
         if save_to_disk:
-            self._save_script(script, github_url)
-            
-        return script
+            self._save_script(final_script, github_url)
+        return final_script
     
     def _save_script(self, script: Script, github_url: str) -> None:
         """Save the script to disk in Markdown format."""

@@ -27,21 +27,24 @@ class GitHubService:
     async def get_file_content(self, url: str) -> Dict:
         """Fetch content of a single file from GitHub."""
         try:
+            print(f"[GitHub] Fetching file: {url}")
             owner, repo, branch, file_path = self._parse_github_url(url)
             repository: Repository = self.github.get_repo(f"{owner}/{repo}")
             content: ContentFile = repository.get_contents(file_path, ref=branch)
-            
+            print(f"[GitHub] Successfully fetched file: {file_path}")
             return {
                 "path": file_path,
                 "content": content.decoded_content.decode("utf-8"),
                 "type": "file"
             }
         except Exception as e:
+            print(f"[GitHub] Error fetching file {url}: {e}")
             raise Exception(f"Error fetching file content: {str(e)}")
 
     async def get_directory_content(self, url: str, file_types: Optional[List[str]] = None) -> List[Dict]:
         """Fetch content of all files in a directory from GitHub."""
         try:
+            print(f"[GitHub] Fetching directory: {url}")
             owner, repo, branch, dir_path = self._parse_github_url(url)
             repository: Repository = self.github.get_repo(f"{owner}/{repo}")
             contents = repository.get_contents(dir_path, ref=branch)
@@ -54,7 +57,7 @@ class GitHubService:
                         ext = content.name.split(".")[-1]
                         if ext not in file_types:
                             continue
-                    
+                    print(f"[GitHub] Fetching file in directory: {content.path}")
                     files.append({
                         "path": content.path,
                         "content": content.decoded_content.decode("utf-8"),
@@ -63,11 +66,14 @@ class GitHubService:
                 elif content.type == "dir":
                     # Recursively get contents of subdirectory
                     subdir_url = f"https://github.com/{owner}/{repo}/tree/{branch}/{content.path}"
+                    print(f"[GitHub] Recursively fetching subdirectory: {subdir_url}")
                     subdir_files = await self.get_directory_content(subdir_url, file_types)
                     files.extend(subdir_files)
             
+            print(f"[GitHub] Successfully fetched directory: {dir_path} ({len(files)} files)")
             return files
         except Exception as e:
+            print(f"[GitHub] Error fetching directory {url}: {e}")
             raise Exception(f"Error fetching directory content: {str(e)}")
 
     async def fetch_code(self, url: str, file_types: Optional[List[str]] = None) -> List[Dict]:

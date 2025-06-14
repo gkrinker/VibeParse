@@ -74,6 +74,13 @@
 - The generated Markdown scripts are now suitable for both human review and downstream video generation.
 - Successfully tested end-to-end: can now generate scene-based explanations with code for a single file (e.g., `App.tsx` from snap-read).
 
+### June 2024 (Batching Milestone): Multi-File Script Generation with Batching
+- [2024-06-XX] Added support for generating scripts from multiple files in a codebase using per-file batching to stay within LLM token limits.
+- Each file is token-estimated and grouped into batches; batches are processed sequentially and results are aggregated into a single Markdown script.
+- Large files that exceed the token threshold are skipped gracefully and listed in the output.
+- Added real-time logging for GitHub fetching, batching, and script generation progress.
+- Successfully tested on the full snap-read codebase: multi-file, multi-batch script generation now works end-to-end.
+
 ---
 
 **This log is intended for all agents and contributors to quickly understand the current state and history of the VibeParse project.** 

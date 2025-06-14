@@ -196,3 +196,8 @@ curl -X POST http://localhost:8000/api/generate-video \
    - Async processing for long-running tasks
    - Progress tracking for video generation
    - Fallback options for failed generations 
+
+## 🚦 Pre-Production Checklist (June 2024)
+- Enforce a hard cap on input size (max files, max lines, or max tokens) for script generation requests.
+- Implement per-file batching for LLM requests, keeping each batch under the token limit.
+- If a single file is too large, handle gracefully: skip the file, inform the user, and suggest splitting or reducing scope. 
