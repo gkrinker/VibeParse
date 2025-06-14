@@ -1,107 +1,125 @@
 # Code Explanation Script
 
-## Scene 1: Setting Up the Environment (30s)
+## Chapter 1: Files in this chapter (5s)
 
-Let's start by looking at how the `App` component sets up its environment. This is crucial for ensuring that various features like data fetching and navigation work seamlessly across the application.
+This chapter covers the following files:
+src/App.tsx
+src/components/CardActions.tsx
+src/components/FileUpload.tsx
+src/components/FlashcardStack.tsx
+src/components/ProgressBar.tsx
+src/components/SettingsDrawer.tsx
+src/components/ui/accordion.tsx
+src/components/ui/alert-dialog.tsx
+
+---
+
+## Scene 1: Scene 1: Setting Up the App with Providers (30s)
+
+In this scene, we'll explore how the App component is structured with various providers for managing state, notifications, and routing. This foundational setup is vital for a fully functional React application.
 
 
 ### Code Highlights
 
-**src/App.tsx** (lines 1-17):
+**src/App.tsx** (lines 11-13):
 ```
-// Import UI components for notifications and tooltips
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-
-import Index from "./pages/Index";
-import FlashcardViewer from "./pages/FlashcardViewer";
-import NotFound from "./pages/NotFound";
-
+// Initialize React Query client for managing server state
 const queryClient = new QueryClient();
 ```
-Here, the application imports essential components for notifications (Toaster), tooltips (TooltipProvider), data fetching (QueryClient), and routing (BrowserRouter). Think of these as tools you set up at the start of a project, like a toolbox for a builder.
+Here, we initialize a `QueryClient`, which is crucial for managing server state using React Query. Think of it as the manager that handles data fetching and caching.
+
+
+**src/App.tsx** (lines 16-19):
+```
+<QueryClientProvider client={queryClient}>
+  <TooltipProvider>
+    <Toaster />
+    <Sonner />
+```
+These lines wrap the app in various context providers. The `QueryClientProvider` uses the `queryClient` for data management, while `TooltipProvider` and `Toaster` are for tooltips and notifications respectively. It's like setting the stage with all necessary props before the show starts.
 
 
 
 ---
 
-## Scene 2: Application Structure with Providers and Routing (30s)
+## Scene 2: Scene 2: Navigating the App with React Router (25s)
 
-Next, we wrap our component tree with providers to manage state and handle routing within the application.
+Next, we'll delve into how routing is set up, allowing users to navigate between different pages of the application.
 
 
 ### Code Highlights
 
-**src/App.tsx** (lines 19-42):
+**src/App.tsx** (lines 22-30):
 ```
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/flashcards" element={<FlashcardViewer />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+<BrowserRouter>
+  <Routes>
+    <Route path="/" element={<Index />} />
+    <Route path="/flashcards" element={<FlashcardViewer />} />
+    <Route path="*" element={<NotFound />} />
+  </Routes>
+</BrowserRouter>
 ```
-The `App` component uses `QueryClientProvider`, `TooltipProvider`, and `BrowserRouter` to encapsulate child components. This setup is like a spine that supports different parts of your body, ensuring they function correctly together.
+This block establishes the routing structure using `BrowserRouter`, `Routes`, and `Route`. Each `Route` component specifies a path and the component to render. It's like a GPS, directing users to the right page based on the URL.
 
 
 
 ---
 
-## Scene 3: Handling User Interactions with Card Actions (45s)
+## Scene 3: Scene 3: Understanding CardActions Component (30s)
 
-Let's move to `CardActions`, a component that handles user interactions related to individual cards.
+We now shift focus to the `CardActions` component, which provides interactive actions for each flashcard, such as bookmarking or asking AI questions.
 
 
 ### Code Highlights
 
-**src/components/CardActions.tsx** (lines 12-34):
+**src/components/CardActions.tsx** (lines 14-16):
 ```
 const [aiQuestion, setAiQuestion] = useState("");
 const [aiResponse, setAiResponse] = useState("");
 const [isAskingAI, setIsAskingAI] = useState(false);
-const [isDeeperOpen, setIsDeeperOpen] = useState(false);
-const [isAIOpen, setIsAIOpen] = useState(false);
+```
+These lines define state variables using React hooks to manage the AI interaction status and responses. `useState` acts like a personal assistant, tracking the current state of each variable.
 
+
+**src/components/CardActions.tsx** (lines 32-38):
+```
 const handleAskAI = async () => {
   if (!aiQuestion.trim()) return;
-  
+
   setIsAskingAI(true);
   try {
+    // Simulate AI response for now
     await new Promise(resolve => setTimeout(resolve, 1500));
-    setAiResponse(`Based on the content, ${aiQuestion.toLowerCase()}...`);
+    setAiResponse(`Based on the content, ${aiQuestion.toLowerCase()}... This is a simulated AI response that would provide contextual information about the current card content.`);
     onAskAI(cardId, aiQuestion);
   } finally {
     setIsAskingAI(false);
   }
 };
 ```
-This snippet manages the state for AI interactions, including asking questions and receiving responses. Imagine this like a smart assistant at your desk, ready to fetch or process information when you ask it.
+This function handles the AI question submission. It simulates an AI response with a delay, akin to waiting for a machine to process and return information.
 
 
 
 ---
 
-## Scene 4: Validating and Managing File Uploads (40s)
+## Scene 4: Scene 4: File Upload Process in FileUpload Component (30s)
 
-In the `FileUpload` component, we manage file selection and validation, ensuring users upload correct files.
+Let's look at how the `FileUpload` component manages file selection, validation, and uploading.
 
 
 ### Code Highlights
 
-**src/components/FileUpload.tsx** (lines 14-30):
+**src/components/FileUpload.tsx** (lines 24-26):
+```
+const [selectedFile, setSelectedFile] = useState<File | null>(null);
+const [isDragging, setIsDragging] = useState(false);
+const [error, setError] = useState<string | null>(null);
+```
+These states track the file selection, drag status, and any errors. It's like having a checklist to ensure everything is ready before uploading a file.
+
+
+**src/components/FileUpload.tsx** (lines 42-50):
 ```
 const validateFile = (file: File): boolean => {
   const validTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
@@ -109,7 +127,6 @@ const validateFile = (file: File): boolean => {
     setError('Please upload a PDF or Word document');
     return false;
   }
-
   const maxSize = 10 * 1024 * 1024; // 10MB in bytes
   if (file.size > maxSize) {
     setError('File size must be less than 10MB');
@@ -120,66 +137,66 @@ const validateFile = (file: File): boolean => {
   return true;
 };
 ```
-This function checks if the file type is valid and if its size is under 10MB. Think of this as a bouncer at a club, only letting in files that meet specific criteria.
+This `validateFile` function checks the type and size of the file. Consider it the security check at an airport, ensuring only valid files proceed to the upload stage.
 
 
 
 ---
 
-## Scene 5: Navigating with Swipe Gestures in FlashcardStack (45s)
+## Scene 5: Scene 5: Managing Progress with ProgressBar (25s)
 
-Finally, let's look at how `FlashcardStack` handles swipe gestures to navigate between cards.
+Finally, we explore the `ProgressBar` component, which visually represents progress through flashcards or tasks.
 
 
 ### Code Highlights
 
-**src/components/FlashcardStack.tsx** (lines 60-90):
+**src/components/ProgressBar.tsx** (lines 16-18):
 ```
-const handleTouchStart = (e: React.TouchEvent) => {
-  if (isAnimating) return;
-  setTouchEnd(null);
-  setTouchStart({
-    x: e.targetTouches[0].clientX,
-    y: e.targetTouches[0].clientY,
-    time: Date.now()
-  });
-  setIsDragging(true);
-};
-
-const handleTouchMove = (e: React.TouchEvent) => {
-  if (!touchStart || isAnimating) return;
-  
-  const currentX = e.targetTouches[0].clientX;
-  const currentY = e.targetTouches[0].clientY;
-  const deltaX = currentX - touchStart.x;
-  const deltaY = currentY - touchStart.y;
-  
-  const rotation = deltaX * 0.1;
-  const scale = 1 - Math.abs(deltaX) * 0.001;
-
-  setCardPosition({
-    x: deltaX,
-    y: deltaY * 0.3,
-    rotation,
-    scale: Math.max(0.8, scale)
-  });
-};
+const progress = (current / total) * 100;
+const completion = (answered / total) * 100;
 ```
-These functions handle the touch start and move events to update card positions, like swiping through photos on a smartphone. It's all about making navigation intuitive and smooth for the user.
+These calculations determine the percentage of progress and completion. Imagine a race track where these values show how far you've advanced towards the finish line.
 
 
-This explanation script breaks down key parts of the code, providing a comprehensive understanding of its functionality and purpose.
+**src/components/ProgressBar.tsx** (lines 22-26):
+```
+<div className="relative h-1 bg-gray-200 rounded-full overflow-hidden">
+  <div className="absolute top-0 left-0 h-full bg-gradient-to-r from-purple-600 to-blue-600 transition-all duration-300" style={{ width: `${progress}%` }} />
+  <div className="absolute top-0 left-0 h-full bg-gray-400 transition-all duration-300" style={{ width: `${completion}%` }} />
+</div>
+```
+Here, the `ProgressBar` visually reflects the progress and completion through colored bars. Think of it as a visual motivator, showing how close you are to achieving your goal.
+
 
 ---
 
-## Scene 1: Understanding the Alert Component (30s)
+## Chapter 2: Files in this chapter (5s)
 
-In this scene, we'll explore the `Alert` component, which is part of a UI library. This component is designed to display alert messages with different styles based on variants like "default" or "destructive".
+This chapter covers the following files:
+src/components/ui/alert.tsx
+src/components/ui/aspect-ratio.tsx
+src/components/ui/avatar.tsx
+src/components/ui/badge.tsx
+src/components/ui/breadcrumb.tsx
+src/components/ui/button.tsx
+src/components/ui/calendar.tsx
+src/components/ui/card.tsx
+src/components/ui/carousel.tsx
+src/components/ui/chart.tsx
+src/components/ui/checkbox.tsx
+src/components/ui/collapsible.tsx
+src/components/ui/command.tsx
+
+---
+
+## Scene 6: Scene 1: Understanding Alert Variants (30s)
+
+In this scene, we will explore how the alert component is styled and how different styles can be applied using variants.
 
 
 ### Code Highlights
 
-**src/components/ui/alert.tsx** (lines 6-18):
+**alert.tsx** (lines 6-18):
 ```
 const alertVariants = cva(
   "relative w-full rounded-lg border p-4 [&>svg~*]:pl-7 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-foreground",
@@ -197,10 +214,20 @@ const alertVariants = cva(
   }
 )
 ```
-This code defines `alertVariants` using `cva` (class variance authority) to handle CSS classes for different alert styles. The default style is a background with a specific text color, while the destructive style changes the border and text colors to indicate urgency.
+Here, `alertVariants` is defined using the `cva` function, which helps create class variance authority (CVA) objects. The `alertVariants` object allows the alert component to have different styles based on the `variant` property. By default, the alert uses the `default` variant, but it can also be styled as `destructive` if specified.
 
 
-**src/components/ui/alert.tsx** (lines 20-28):
+
+---
+
+## Scene 7: Scene 2: Forwarding Refs in Alert Components (25s)
+
+Let's see how React's `forwardRef` is used in the `Alert`, `AlertTitle`, and `AlertDescription` components to manage refs and props.
+
+
+### Code Highlights
+
+**alert.tsx** (lines 20-26):
 ```
 const Alert = React.forwardRef<
   HTMLDivElement,
@@ -215,20 +242,10 @@ const Alert = React.forwardRef<
 ))
 Alert.displayName = "Alert"
 ```
-The `Alert` component uses `React.forwardRef` to allow referencing the DOM node directly. It applies the styles defined in `alertVariants` based on the `variant` prop and accepts additional props for further customization.
+The `Alert` component uses `React.forwardRef` to pass a `ref` to the underlying DOM element. This allows parent components to directly interact with the DOM node. The `cn` function combines the styles from `alertVariants` with any additional classes.
 
 
-
----
-
-## Scene 2: Forward Refs in React (25s)
-
-In this scene, let's dive into how forward refs are used in React components, focusing on the `Alert`, `AlertTitle`, and `AlertDescription` components.
-
-
-### Code Highlights
-
-**src/components/ui/alert.tsx** (lines 30-38):
+**alert.tsx** (lines 28-33):
 ```
 const AlertTitle = React.forwardRef<
   HTMLParagraphElement,
@@ -242,49 +259,29 @@ const AlertTitle = React.forwardRef<
 ))
 AlertTitle.displayName = "AlertTitle"
 ```
-The `AlertTitle` component is a styled `<h5>` element which uses `React.forwardRef` to forward the ref to the DOM node. This is useful for direct DOM manipulations or integrations with other libraries that require a ref.
-
-
-**src/components/ui/alert.tsx** (lines 40-48):
-```
-const AlertDescription = React.forwardRef<
-  HTMLParagraphElement,
-  React.HTMLAttributes<HTMLParagraphElement>
->(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn("text-sm [&_p]:leading-relaxed", className)}
-    {...props}
-  />
-))
-AlertDescription.displayName = "AlertDescription"
-```
-Similarly, `AlertDescription` is a component that forwards a ref to the `<div>` element, allowing for additional styling and interaction capabilities.
+Similarly, `AlertTitle` also uses `forwardRef` for its `h5` element, enabling the usage of refs for more precise control over the component.
 
 
 
 ---
 
-## Scene 3: Class Variance Authority (20s)
+## Scene 8: Scene 3: Building the Badge Component with Variants (30s)
 
-Here, we will explore what `cva` is and how it facilitates styling with variants, specifically in the `Badge` component.
+Now, let's switch gears and look at the badge component, which also uses the CVA for styling with variants.
 
 
 ### Code Highlights
 
-**src/components/ui/badge.tsx** (lines 6-21):
+**badge.tsx** (lines 6-16):
 ```
 const badgeVariants = cva(
   "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
   {
     variants: {
       variant: {
-        default:
-          "border-transparent bg-primary text-primary-foreground hover:bg-primary/80",
-        secondary:
-          "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        destructive:
-          "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
+        default: "border-transparent bg-primary text-primary-foreground hover:bg-primary/80",
+        secondary: "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
+        destructive: "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
         outline: "text-foreground",
       },
     },
@@ -294,153 +291,112 @@ const badgeVariants = cva(
   }
 )
 ```
-The `cva` function here is used to define a set of CSS classes that can vary based on the `variant` prop. This allows for easy customization of the `Badge` component's appearance, making it adaptable for different contexts and uses.
+The `badgeVariants` object is created using the `cva` function, similar to the alert component. It defines multiple variant styles for different use cases such as `default`, `secondary`, `destructive`, and `outline`. These styles can be applied dynamically based on the `variant` prop.
 
 
 
 ---
 
-## Scene 4: Creating a Carousel with Embla (30s)
+## Scene 9: Scene 4: Creating the Badge Component (25s)
 
-In this scene, we'll look at how the `Carousel` component is built using the `embla-carousel-react` library to enable smooth scrolling experiences.
+Let's see how the `Badge` component is constructed and how it utilizes the `badgeVariants`.
 
 
 ### Code Highlights
 
-**src/components/ui/carousel.tsx** (lines 22-40):
+**badge.tsx** (lines 18-24):
 ```
-const Carousel = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement> & CarouselProps
->(
-  (
-    {
-      orientation = "horizontal",
-      opts,
-      setApi,
-      plugins,
-      className,
-      children,
-      ...props
-    },
-    ref
-  ) => {
-    const [carouselRef, api] = useEmblaCarousel(
-      {
-        ...opts,
-        axis: orientation === "horizontal" ? "x" : "y",
-      },
-      plugins
-    )
+export interface BadgeProps
+  extends React.HTMLAttributes<HTMLDivElement>,
+    VariantProps<typeof badgeVariants> {}
+
+function Badge({ className, variant, ...props }: BadgeProps) {
+  return (
+    <div className={cn(badgeVariants({ variant }), className)} {...props} />
+  )
+}
 ```
-The `Carousel` component uses `useEmblaCarousel` to create a customizable carousel. The `orientation` prop determines the scrolling direction, and `plugins` can be added for extra features. The carousel is controlled through the `api` returned by `useEmblaCarousel`.
-
-
-**src/components/ui/carousel.tsx** (lines 42-62):
-```
-    const [canScrollPrev, setCanScrollPrev] = React.useState(false)
-    const [canScrollNext, setCanScrollNext] = React.useState(false)
-
-    const onSelect = React.useCallback((api: CarouselApi) => {
-      if (!api) {
-        return
-      }
-
-      setCanScrollPrev(api.canScrollPrev())
-      setCanScrollNext(api.canScrollNext())
-    }, [])
-
-    const scrollPrev = React.useCallback(() => {
-      api?.scrollPrev()
-    }, [api])
-
-    const scrollNext = React.useCallback(() => {
-      api?.scrollNext()
-    }, [api])
-```
-These hooks and callbacks manage the state of scrolling capabilities, allowing the carousel to handle navigation logic like enabling or disabling scroll buttons based on the current scroll position.
+The `Badge` component is a simple functional component that applies styles using the `badgeVariants` object. It accepts `className`, `variant`, and other props, and uses the `cn` function to combine the styles for the badge.
 
 
 
 ---
 
-## Scene 5: Building a Command Interface (30s)
+## Scene 10: Scene 5: Understanding Avatar Component Structure (30s)
 
-Finally, we'll examine the `Command` component and how it integrates with a dialog to create a command palette interface.
+Finally, let's take a glance at the avatar component to understand its structure and styling.
 
 
 ### Code Highlights
 
-**src/components/ui/command.tsx** (lines 6-17):
+**avatar.tsx** (lines 8-16):
 ```
-const Command = React.forwardRef<
-  React.ElementRef<typeof CommandPrimitive>,
-  React.ComponentPropsWithoutRef<typeof CommandPrimitive>
+const Avatar = React.forwardRef<
+  React.ElementRef<typeof AvatarPrimitive.Root>,
+  React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Root>
 >(({ className, ...props }, ref) => (
-  <CommandPrimitive
+  <AvatarPrimitive.Root
     ref={ref}
     className={cn(
-      "flex h-full w-full flex-col overflow-hidden rounded-md bg-popover text-popover-foreground",
+      "relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full",
       className
     )}
     {...props}
   />
 ))
-Command.displayName = CommandPrimitive.displayName
+Avatar.displayName = AvatarPrimitive.Root.displayName
 ```
-The `Command` component acts as a wrapper for a command input system, styled to fit within a dialog or any overlay. It uses `React.forwardRef` to provide compatibility with the underlying `cmdk` library.
+The `Avatar` component uses `React.forwardRef` to pass refs, and it integrates with `AvatarPrimitive.Root` from the `@radix-ui/react-avatar` library. It applies styles to make the avatar round and responsive, using the `cn` function to handle class names dynamically.
 
 
-**src/components/ui/command.tsx** (lines 19-30):
-```
-const CommandDialog = ({ children, ...props }: CommandDialogProps) => {
-  return (
-    <Dialog {...props}>
-      <DialogContent className="overflow-hidden p-0 shadow-lg">
-        <Command className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-group]]:px-2 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5">
-          {children}
-        </Command>
-      </DialogContent>
-    </Dialog>
-  )
-}
-```
-`CommandDialog` combines the command input with a dialog window, creating an interactive command palette. This component is essential for building interfaces that require user input in a modal form.
-
-
-By understanding these components and their underlying concepts, such as `cva`, forward refs, and controlled components, you can effectively build and customize UI elements in React.
+By breaking down these components, we see a consistent pattern of using React's `forwardRef` and CVA for styling, making the components both flexible and maintainable.
 
 ---
 
-## Scene 1: Setting the Stage with Imports (20s)
+## Chapter 3: Files in this chapter (5s)
 
-In this scene, we're setting up the essentials for our components. Think of it like gathering ingredients before baking a cake. We import various React components and utilities that will help us build our UI components.
+This chapter covers the following files:
+src/components/ui/context-menu.tsx
+src/components/ui/dialog.tsx
+src/components/ui/drawer.tsx
+src/components/ui/dropdown-menu.tsx
+src/components/ui/form.tsx
+src/components/ui/hover-card.tsx
+src/components/ui/input-otp.tsx
+src/components/ui/input.tsx
+src/components/ui/label.tsx
+src/components/ui/menubar.tsx
+
+---
+
+## Scene 11: Scene 1: Setting the Stage with Imports (20s)
+
+Let's start by looking at the imports in our `context-menu.tsx` file. This file imports several libraries and components, which are essential for creating our context menu.
 
 
 ### Code Highlights
 
-**src/components/ui/context-menu.tsx** (lines 1-7):
+**src/components/ui/context-menu.tsx** (lines 1-5):
 ```
 import * as React from "react"
 import * as ContextMenuPrimitive from "@radix-ui/react-context-menu"
 import { Check, ChevronRight, Circle } from "lucide-react"
-
 import { cn } from "@/lib/utils"
 ```
-Here, we import React, the Radix UI context menu primitives, some icons, and a utility function for combining class names. These imports are the building blocks for creating our context menu.
+Here, we're importing React, which is the backbone of our component. The `@radix-ui/react-context-menu` provides us with primitives to build a context menu, while `lucide-react` offers some icons. The `cn` utility helps manage class names.
 
 
 
 ---
 
-## Scene 2: Basic Components Setup (30s)
+## Scene 12: Scene 2: Understanding the Context Menu Structure (25s)
 
-Now, we're creating basic components using the imported primitives. Imagine these as the base layers of our context menu.
+Now, let's dive into how we define the various parts of a context menu. We use Radix UI primitives to create and export several components.
 
 
 ### Code Highlights
 
-**src/components/ui/context-menu.tsx** (lines 9-15):
+**src/components/ui/context-menu.tsx** (lines 7-15):
 ```
 const ContextMenu = ContextMenuPrimitive.Root
 const ContextMenuTrigger = ContextMenuPrimitive.Trigger
@@ -449,20 +405,20 @@ const ContextMenuPortal = ContextMenuPrimitive.Portal
 const ContextMenuSub = ContextMenuPrimitive.Sub
 const ContextMenuRadioGroup = ContextMenuPrimitive.RadioGroup
 ```
-These lines map the Radix UI primitives to more readable component names. It's like giving each ingredient a label so we know exactly what we're working with.
+Each line assigns a Radix UI primitive to a variable, which represents a different part of the context menu, like the root, trigger, group, and more. Think of these as the building blocks of our menu.
 
 
 
 ---
 
-## Scene 3: Forwarding Refs with Custom Styles (25s)
+## Scene 13: Scene 3: Customizing Sub Triggers and Content (30s)
 
-Here, we dive deeper by creating components that accept props and forward refs. This allows us to customize and style our components while maintaining their core functionality.
+Here, we define custom sub trigger and content components that allow for additional styling and functionality.
 
 
 ### Code Highlights
 
-**src/components/ui/context-menu.tsx** (lines 17-31):
+**src/components/ui/context-menu.tsx** (lines 17-35):
 ```
 const ContextMenuSubTrigger = React.forwardRef<
   React.ElementRef<typeof ContextMenuPrimitive.SubTrigger>,
@@ -473,7 +429,7 @@ const ContextMenuSubTrigger = React.forwardRef<
   <ContextMenuPrimitive.SubTrigger
     ref={ref}
     className={cn(
-      "flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none focus:bg-accent",
+      "flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[state=open]:bg-accent data-[state=open]:text-accent-foreground",
       inset && "pl-8",
       className
     )}
@@ -483,60 +439,103 @@ const ContextMenuSubTrigger = React.forwardRef<
     <ChevronRight className="ml-auto h-4 w-4" />
   </ContextMenuPrimitive.SubTrigger>
 ))
+ContextMenuSubTrigger.displayName = ContextMenuPrimitive.SubTrigger.displayName
 ```
-This component, `ContextMenuSubTrigger`, uses `React.forwardRef` to allow ref passing. It also applies styles conditionally based on the `inset` prop, much like adding extra spice to a dish if needed.
+The `ContextMenuSubTrigger` is a custom component that allows for adding a submenu. It's styled with classes for appearance and behavior, like changing color on focus or when open. The `ChevronRight` icon visually indicates a submenu.
 
 
 
 ---
 
-## Scene 4: Wrapping Up with Exports (15s)
+## Scene 14: Scene 4: Leveraging Context for Form Fields (25s)
 
-Finally, we gather all the components and export them for use in other parts of the application. This is like plating the dish, making it ready for consumption.
+Let's transition to the `form.tsx` file, where context is used to manage form fields.
 
 
 ### Code Highlights
 
-**src/components/ui/context-menu.tsx** (lines 115-133):
+**src/components/ui/form.tsx** (lines 14-19):
 ```
-export {
-  ContextMenu,
-  ContextMenuTrigger,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuCheckboxItem,
-  ContextMenuRadioItem,
-  ContextMenuLabel,
-  ContextMenuSeparator,
-  ContextMenuShortcut,
-  ContextMenuGroup,
-  ContextMenuPortal,
-  ContextMenuSub,
-  ContextMenuSubContent,
-  ContextMenuSubTrigger,
-  ContextMenuRadioGroup,
+const FormFieldContext = React.createContext<FormFieldContextValue>(
+  {} as FormFieldContextValue
+)
+
+const FormField = <
+  TFieldValues extends FieldValues = FieldValues,
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
+>({
+  ...props
+}: ControllerProps<TFieldValues, TName>) => {
+  return (
+    <FormFieldContext.Provider value={{ name: props.name }}>
+      <Controller {...props} />
+    </FormFieldContext.Provider>
+  )
 }
 ```
-Here, we export all components, making them available for other parts of the application to use. This is like adding the final touches to a meal before serving it.
+The `FormFieldContext` is created to pass down field names through context. The `FormField` component uses this context to wrap a `Controller`, linking form logic and UI.
 
 
 
 ---
 
-## Conclusion (20s)
+## Scene 15: Scene 5: Integrating Input Components (20s)
 
-In this explanation, we walked through the creation of a context menu component in React using Radix UI primitives. We covered imports, component setup, styling with class names, and exporting components. Each step is essential for building a functional and styled UI component in a React application.
-
----
-
-## Understanding the Navigation Menu Component (25s)
-
-Let's explore the `NavigationMenu` component, which is part of a user interface for navigation. Think of it as a fancy dropdown menu that helps users move through different sections of an application.
+Finally, let's look at a simple input component.
 
 
 ### Code Highlights
 
-**src/components/ui/navigation-menu.tsx** (lines 8-19):
+**src/components/ui/input.tsx** (lines 3-12):
+```
+const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
+  ({ className, type, ...props }, ref) => {
+    return (
+      <input
+        type={type}
+        className={cn(
+          "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background",
+          className
+        )}
+        ref={ref}
+        {...props}
+      />
+    )
+  }
+)
+Input.displayName = "Input"
+```
+This component defines an input field with customizable styling. The `cn` utility helps combine class names for responsiveness and visuals. It uses `forwardRef` to allow parent components to access the input's DOM node.
+
+
+Through these scenes, we've explored the foundational aspects of building and styling UI components using React, Radix UI, and utility libraries. Keep experimenting to make these components your own!
+
+---
+
+## Chapter 4: Files in this chapter (5s)
+
+This chapter covers the following files:
+src/components/ui/navigation-menu.tsx
+src/components/ui/pagination.tsx
+src/components/ui/popover.tsx
+src/components/ui/progress.tsx
+src/components/ui/radio-group.tsx
+src/components/ui/resizable.tsx
+src/components/ui/scroll-area.tsx
+src/components/ui/select.tsx
+src/components/ui/separator.tsx
+src/components/ui/sheet.tsx
+
+---
+
+## Scene 16: Scene 1: Introduction to Navigation Menu (30s)
+
+Let's begin by exploring the `NavigationMenu` component. This component is a part of a UI library that helps in creating a navigation menu. It's built using React and leverages a library called `@radix-ui/react-navigation-menu` for managing navigation primitives.
+
+
+### Code Highlights
+
+**src/components/ui/navigation-menu.tsx** (lines 8-20):
 ```
 const NavigationMenu = React.forwardRef<
   React.ElementRef<typeof NavigationMenuPrimitive.Root>,
@@ -555,49 +554,56 @@ const NavigationMenu = React.forwardRef<
   </NavigationMenuPrimitive.Root>
 ))
 ```
-This block defines the `NavigationMenu` component using `React.forwardRef`. It allows the component to receive a `ref` which can be used to reference the DOM element created by this component. It uses `NavigationMenuPrimitive.Root` to create the root element and applies some utility CSS classes for styling.
+This code defines a React component called `NavigationMenu` using `React.forwardRef`, which allows the component to pass a `ref` down to a child component. The `NavigationMenu` uses a `Root` component from `NavigationMenuPrimitive` and applies styling using a utility called `cn`.
 
 
 
 ---
 
-## Creating a List in the Navigation Menu (20s)
+## Scene 17: Scene 2: Understanding Forward Refs (25s)
 
-Next, we have the `NavigationMenuList` which acts like a container for menu items, similar to a list in a book where each item is like a chapter.
+Forward refs in React are a pattern for passing a ref through a component to one of its children. Here, it's used to connect the `NavigationMenu` component to the DOM element rendered by `NavigationMenuPrimitive.Root`.
 
 
 ### Code Highlights
 
-**src/components/ui/navigation-menu.tsx** (lines 21-31):
+**src/components/ui/navigation-menu.tsx** (lines 10-12):
 ```
-const NavigationMenuList = React.forwardRef<
-  React.ElementRef<typeof NavigationMenuPrimitive.List>,
-  React.ComponentPropsWithoutRef<typeof NavigationMenuPrimitive.List>
->(({ className, ...props }, ref) => (
-  <NavigationMenuPrimitive.List
-    ref={ref}
-    className={cn(
-      "group flex flex-1 list-none items-center justify-center space-x-1",
-      className
-    )}
-    {...props}
-  />
-))
+ref={ref}
 ```
-The `NavigationMenuList` is a styled list container using `NavigationMenuPrimitive.List`. It applies styling classes to arrange the items horizontally with spaces between them.
+This line shows how the `ref` is passed down to the `NavigationMenuPrimitive.Root`, allowing parent components to access the underlying DOM node if needed.
 
 
 
 ---
 
-## Styling the Menu Trigger (25s)
+## Scene 18: Scene 3: Styling with Class Variance Authority (30s)
 
-The `NavigationMenuTrigger` functions like a light switch for the menu, letting users open or close it.
+The `cn` function and `cva` utility are used for styling components. They enable the composition of CSS class names based on certain conditions or variants.
 
 
 ### Code Highlights
 
-**src/components/ui/navigation-menu.tsx** (lines 43-56):
+**src/components/ui/navigation-menu.tsx** (lines 46-49):
+```
+const navigationMenuTriggerStyle = cva(
+  "group inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50"
+)
+```
+The `cva` function is used here to define a base style for a menu trigger. It supports conditional logic for styling based on the component's state or props.
+
+
+
+---
+
+## Scene 19: Scene 4: Creating Interactive Components (30s)
+
+The `NavigationMenuTrigger` component adds interactivity. It shows how icons and animations are integrated into the trigger.
+
+
+### Code Highlights
+
+**src/components/ui/navigation-menu.tsx** (lines 51-62):
 ```
 const NavigationMenuTrigger = React.forwardRef<
   React.ElementRef<typeof NavigationMenuPrimitive.Trigger>,
@@ -616,70 +622,20 @@ const NavigationMenuTrigger = React.forwardRef<
   </NavigationMenuPrimitive.Trigger>
 ))
 ```
-Here, `NavigationMenuTrigger` is defined, using `ChevronDown` as an icon to indicate the toggle state. It uses a custom style from `navigationMenuTriggerStyle` which defines how it looks when active, hovered, or focused.
+This component includes a `ChevronDown` icon, which rotates based on the menu's state, providing visual feedback to users when the menu is opened or closed.
 
 
 
 ---
 
-## Adding Content and Viewport (20s)
+## Scene 20: Scene 5: Conclusion and Exports (20s)
 
-The `NavigationMenuContent` and `NavigationMenuViewport` are like the pages and the viewing window of our menu—showing the relevant content to users.
-
-
-### Code Highlights
-
-**src/components/ui/navigation-menu.tsx** (lines 58-70):
-```
-const NavigationMenuContent = React.forwardRef<
-  React.ElementRef<typeof NavigationMenuPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof NavigationMenuPrimitive.Content>
->(({ className, ...props }, ref) => (
-  <NavigationMenuPrimitive.Content
-    ref={ref}
-    className={cn(
-      "left-0 top-0 w-full data-[motion^=from-]:animate-in data-[motion^=to-]:animate-out",
-      className
-    )}
-    {...props}
-  />
-))
-```
-This snippet creates `NavigationMenuContent`, where the menu details are displayed. Animations like `animate-in` and `animate-out` make the content appear smoothly.
-
-
-**src/components/ui/navigation-menu.tsx** (lines 94-106):
-```
-const NavigationMenuViewport = React.forwardRef<
-  React.ElementRef<typeof NavigationMenuPrimitive.Viewport>,
-  React.ComponentPropsWithoutRef<typeof NavigationMenuPrimitive.Viewport>
->(({ className, ...props }, ref) => (
-  <div className={cn("absolute left-0 top-full flex justify-center")}>
-    <NavigationMenuPrimitive.Viewport
-      className={cn(
-        "origin-top-center relative mt-1.5 h-[var(--radix-navigation-menu-viewport-height)] w-full overflow-hidden rounded-md border bg-popover",
-        className
-      )}
-      ref={ref}
-      {...props}
-    />
-  </div>
-))
-```
-`NavigationMenuViewport` acts as the visible area of the menu, ensuring the content is displayed neatly with appropriate borders and rounded corners.
-
-
-
----
-
-## Summary and Exporting (10s)
-
-Finally, all components are packaged and exported for use, like collecting tools in a toolbox ready for any project.
+Finally, let's look at how components are exported for use in other parts of the application. This file exports multiple components related to the navigation menu.
 
 
 ### Code Highlights
 
-**src/components/ui/navigation-menu.tsx** (lines 124-128):
+**src/components/ui/navigation-menu.tsx** (lines 129-136):
 ```
 export {
   navigationMenuTriggerStyle,
@@ -693,18 +649,38 @@ export {
   NavigationMenuViewport,
 }
 ```
-This export statement makes the components available for import in other parts of the application, allowing for modular and reusable design in building user interfaces.
+This export statement makes the `NavigationMenu` components available for import in other files, organizing them into a modular structure that can be reused throughout the application.
+
+
+By breaking down the code in this way, we've explored the main concepts behind creating a flexible, styled, and interactive navigation menu using React and Radix UI primitives.
 
 ---
 
-## Scene 1: Understanding the Sidebar Context (30s)
+## Chapter 5: Files in this chapter (5s)
 
-In this scene, we'll explore how the sidebar maintains its state across different components using React's context API.
+This chapter covers the following files:
+src/components/ui/sidebar.tsx
+src/components/ui/skeleton.tsx
+src/components/ui/slider.tsx
+src/components/ui/sonner.tsx
+src/components/ui/switch.tsx
+src/components/ui/table.tsx
+src/components/ui/tabs.tsx
+src/components/ui/textarea.tsx
+src/components/ui/toast.tsx
+src/components/ui/toaster.tsx
+src/components/ui/toggle-group.tsx
+
+---
+
+## Scene 21: Introduction to Sidebar Context (30s)
+
+In this scene, we'll explore the context and state management for the Sidebar component. We'll see how the sidebar's state is maintained and shared across various components.
 
 
 ### Code Highlights
 
-**src/components/ui/sidebar.tsx** (lines 33-36):
+**sidebar.tsx** (lines 24-30):
 ```
 type SidebarContext = {
   state: "expanded" | "collapsed"
@@ -715,68 +691,78 @@ type SidebarContext = {
   isMobile: boolean
   toggleSidebar: () => void
 }
-```
-This code snippet defines a `SidebarContext` type, which includes the sidebar's state, whether it's open on mobile, and functions to toggle these states. Think of this as the "control center" for how the sidebar behaves.
 
-```tsx
 const SidebarContext = React.createContext<SidebarContext | null>(null)
 ```
-Here, a React context is created for the sidebar. This allows different components to access and modify the sidebar's state seamlessly.
+This code defines a type `SidebarContext` that includes properties to manage the sidebar's open/closed state, mobile state, and a toggle function. The `React.createContext` function creates a context to share this state throughout the component tree.
 
 
 
 ---
 
-## Scene 2: Leveraging the SidebarProvider (30s)
+## Scene 22: Using the Sidebar Context (25s)
 
-Let's see how `SidebarProvider` uses the context to manage the sidebar state, including mobile compatibility.
+Next, let's see how the sidebar context is utilized within the component.
 
 
 ### Code Highlights
 
-**src/components/ui/sidebar.tsx** (lines 45-51):
+**sidebar.tsx** (lines 32-41):
 ```
-const SidebarProvider = React.forwardRef<
-  HTMLDivElement,
-  React.ComponentProps<"div"> & {
-    defaultOpen?: boolean
-    open?: boolean
-    onOpenChange?: (open: boolean) => void
+function useSidebar() {
+  const context = React.useContext(SidebarContext)
+  if (!context) {
+    throw new Error("useSidebar must be used within a SidebarProvider.")
   }
->(
-  ({ defaultOpen = true, open: openProp, onOpenChange: setOpenProp, ...props }, ref) => {
+
+  return context
+}
 ```
-The `SidebarProvider` component takes in props to control whether the sidebar starts open or closed and allows external control over its open state. It's like setting the initial conditions and allowing adjustments from outside this component.
+The `useSidebar` hook allows components to access the sidebar state and control functions. It ensures that the context is used within a `SidebarProvider`, throwing an error if it's not.
 
 
-**src/components/ui/sidebar.tsx** (lines 66-74):
+
+---
+
+## Scene 23: Controlling the Sidebar State (30s)
+
+Let's dive into how the sidebar's state is controlled and maintained, including the use of cookies.
+
+
+### Code Highlights
+
+**sidebar.tsx** (lines 67-83):
 ```
 const [_open, _setOpen] = React.useState(defaultOpen)
 const open = openProp ?? _open
-const setOpen = React.useCallback((value: boolean | ((value: boolean) => boolean)) => {
-  const openState = typeof value === "function" ? value(open) : value
-  if (setOpenProp) {
-    setOpenProp(openState)
-  } else {
-    _setOpen(openState)
-  }
-  document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`
-}, [setOpenProp, open])
+const setOpen = React.useCallback(
+  (value: boolean | ((value: boolean) => boolean)) => {
+    const openState = typeof value === "function" ? value(open) : value
+    if (setOpenProp) {
+      setOpenProp(openState)
+    } else {
+      _setOpen(openState)
+    }
+
+    document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`
+  },
+  [setOpenProp, open]
+)
 ```
-This part handles the sidebar's open state, using either an internal state or an external prop. It also stores the state in a cookie to remember the user's preference.
+Here, the sidebar's open state is managed using local state and optionally controlled by external props. Changes to the sidebar state are saved in a cookie for persistence.
 
 
 
 ---
 
-## Scene 3: Toggling the Sidebar with Keyboard Shortcuts (25s)
+## Scene 24: Adding Interactivity with Keyboard Shortcuts (20s)
 
-The sidebar can be toggled not just by clicks, but also using keyboard shortcuts!
+We'll look at how keyboard shortcuts are implemented to toggle the sidebar.
 
 
 ### Code Highlights
 
-**src/components/ui/sidebar.tsx** (lines 78-89):
+**sidebar.tsx** (lines 85-97):
 ```
 React.useEffect(() => {
   const handleKeyDown = (event: KeyboardEvent) => {
@@ -788,122 +774,129 @@ React.useEffect(() => {
       toggleSidebar()
     }
   }
+
   window.addEventListener("keydown", handleKeyDown)
   return () => window.removeEventListener("keydown", handleKeyDown)
 }, [toggleSidebar])
 ```
-This useEffect sets up a keyboard listener to toggle the sidebar when the user presses a certain key combination (like Ctrl + B). It's like giving the sidebar a secret handshake to open or close it.
+This effect listens for specific keyboard shortcuts and toggles the sidebar's state when triggered, providing a more interactive experience.
 
 
 
 ---
 
-## Scene 4: Building the Sidebar Layout (30s)
+## Scene 25: Rendering the Sidebar (25s)
 
-Let's dive into how the sidebar is visually structured, focusing on its responsive behavior.
-
-
-### Code Highlights
-
-**src/components/ui/sidebar.tsx** (lines 185-206):
-```
-if (isMobile) {
-  return (
-    <Sheet open={openMobile} onOpenChange={setOpenMobile} {...props}>
-      <SheetContent
-        data-sidebar="sidebar"
-        data-mobile="true"
-        className="w-[--sidebar-width] bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden"
-        style={
-          {
-            "--sidebar-width": SIDEBAR_WIDTH_MOBILE,
-          } as React.CSSProperties
-        }
-        side={side}
-      >
-        <div className="flex h-full w-full flex-col">{children}</div>
-      </SheetContent>
-    </Sheet>
-  )
-}
-```
-For mobile devices, the sidebar uses a `Sheet` component to provide a slide-over panel experience, making it more user-friendly on smaller screens. Imagine it like a drawer that you can pull out or push in.
-
-
-
----
-
-## Scene 5: Interacting with the Sidebar (25s)
-
-Finally, let's see how user interactions are handled, particularly through the `SidebarTrigger`.
+Finally, let's see how the Sidebar is rendered and styled based on its state.
 
 
 ### Code Highlights
 
-**src/components/ui/sidebar.tsx** (lines 260-273):
+**sidebar.tsx** (lines 145-168):
 ```
-const SidebarTrigger = React.forwardRef<
-  React.ElementRef<typeof Button>,
-  React.ComponentProps<typeof Button>
->(({ onClick, ...props }, ref) => {
-  const { toggleSidebar } = useSidebar()
-
-  return (
-    <Button
-      ref={ref}
-      data-sidebar="trigger"
-      variant="ghost"
-      size="icon"
-      onClick={(event) => {
-        onClick?.(event)
-        toggleSidebar()
-      }}
+return (
+  <div
+    ref={ref}
+    className="group peer hidden md:block text-sidebar-foreground"
+    data-state={state}
+    data-collapsible={state === "collapsed" ? collapsible : ""}
+    data-variant={variant}
+    data-side={side}
+  >
+    <div
+      className={cn(
+        "duration-200 relative h-svh w-[--sidebar-width] bg-transparent transition-[width] ease-linear",
+        "group-data-[collapsible=offcanvas]:w-0",
+        "group-data-[side=right]:rotate-180",
+        variant === "floating" || variant === "inset"
+          ? "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4))]"
+          : "group-data-[collapsible=icon]:w-[--sidebar-width-icon]"
+      )}
+    />
+    <div
+      className={cn(
+        "duration-200 fixed inset-y-0 z-10 hidden h-svh w-[--sidebar-width] transition-[left,right,width] ease-linear md:flex",
+        side === "left"
+          ? "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]"
+          : "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]",
+        variant === "floating" || variant === "inset"
+          ? "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4)_+2px)]"
+          : "group-data-[collapsible=icon]:w-[--sidebar-width-icon] group-data-[side=left]:border-r group-data-[side=right]:border-l",
+        className
+      )}
       {...props}
     >
-      <PanelLeft />
-      <span className="sr-only">Toggle Sidebar</span>
-    </Button>
-  )
-})
+      <div
+        data-sidebar="sidebar"
+        className="flex h-full w-full flex-col bg-sidebar group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:border-sidebar-border group-data-[variant=floating]:shadow"
+      >
+        {children}
+      </div>
+    </div>
+  </div>
+)
 ```
-`SidebarTrigger` is a button component used to toggle the sidebar open or closed. It listens for clicks and invokes `toggleSidebar`. Think of it as the friendly doorman who opens and closes the sidebar for you.
+The sidebar's rendering logic adapts based on its state, side, and variant. It uses CSS classes to manage transitions, animations, and responsive behavior.
+
+
+By understanding these core scenes, you can see how the Sidebar component in a React application manages state, interactivity, and rendering.
 
 ---
 
-## Scene 1: Understanding the Toggle Component (30s)
+## Chapter 6: Files in this chapter (5s)
 
-In this scene, we'll explore the `toggle.tsx` file to understand how the Toggle component is structured and styled. The Toggle component is a UI element that can switch between two states, often used for on/off switches.
+This chapter covers the following files:
+src/components/ui/toggle.tsx
+src/components/ui/tooltip.tsx
+src/components/ui/use-toast.ts
+src/hooks/use-mobile.tsx
+src/hooks/use-toast.ts
+src/lib/utils.ts
+src/main.tsx
+src/pages/FlashcardViewer.tsx
+src/pages/Index.tsx
+src/pages/NotFound.tsx
+src/services/documentProcessor.test.ts
+src/services/documentProcessor.ts
+src/vite-env.d.ts
+
+---
+
+## Scene 26: Scene 1: Introduction to Toggle Component (20s)
+
+Let's dive into the `toggle.tsx` file which defines a customizable Toggle component using React and Radix UI's Toggle primitive. This component allows developers to easily integrate toggle buttons with various styles and sizes.
 
 
 ### Code Highlights
 
-**src/components/ui/toggle.tsx** (lines 1-3):
+**toggle.tsx** (lines 1-3):
 ```
 import * as React from "react"
 import * as TogglePrimitive from "@radix-ui/react-toggle"
 import { cva, type VariantProps } from "class-variance-authority"
 ```
-These imports bring in essential libraries: React for building the component, Radix UI for base toggle functionality, and Class Variance Authority for managing styles.
+Here, we import React, Radix UI's Toggle primitive, and utilities from `class-variance-authority` to manage styling variations.
+
 
 
 ---
 
-## Scene 2: Defining Toggle Variants (30s)
+## Scene 27: Scene 2: Defining Toggle Variants (25s)
 
-Here, we'll see how different styles for the Toggle component are defined using variants, which allows the component to be flexible and customizable.
+The next part of our code involves defining the different styling variants for our Toggle component using the `cva` function.
 
 
 ### Code Highlights
 
-**src/components/ui/toggle.tsx** (lines 6-22):
+**toggle.tsx** (lines 7-27):
 ```
 const toggleVariants = cva(
-  "inline-flex items-center justify-center rounded-md text-sm font-medium ...",
+  "inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors hover:bg-muted hover:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=on]:bg-accent data-[state=on]:text-accent-foreground",
   {
     variants: {
       variant: {
         default: "bg-transparent",
-        outline: "border border-input bg-transparent hover:bg-accent ..."
+        outline: "border border-input bg-transparent hover:bg-accent hover:text-accent-foreground",
       },
       size: {
         default: "h-10 px-3",
@@ -918,24 +911,24 @@ const toggleVariants = cva(
   }
 )
 ```
-This block defines styles using `cva`, a utility for handling complex styling logic. Variants like `default` and `outline` determine the appearance, while `size` adjusts the dimensions.
+The `toggleVariants` function defines default styles and allows customization for different sizes and variants, like `default` and `outline`.
+
 
 
 ---
 
-## Scene 3: Building the Toggle Component (30s)
+## Scene 28: Scene 3: Creating the Toggle Component (30s)
 
-Next, we'll see how the Toggle component is constructed using React's `forwardRef` to allow for reference forwarding, which is crucial for interacting with DOM elements directly.
+Now, let's see how we wrap these variants into a React component using `forwardRef`.
 
 
 ### Code Highlights
 
-**src/components/ui/toggle.tsx** (lines 24-34):
+**toggle.tsx** (lines 29-39):
 ```
 const Toggle = React.forwardRef<
   React.ElementRef<typeof TogglePrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof TogglePrimitive.Root> &
-    VariantProps<typeof toggleVariants>
+  React.ComponentPropsWithoutRef<typeof TogglePrimitive.Root> & VariantProps<typeof toggleVariants>
 >(({ className, variant, size, ...props }, ref) => (
   <TogglePrimitive.Root
     ref={ref}
@@ -944,28 +937,23 @@ const Toggle = React.forwardRef<
   />
 ))
 ```
-This code sets up the Toggle component, forwarding the ref and combining class names using a utility function `cn`. It applies the appropriate variant styles based on props.
+The `Toggle` component uses `forwardRef` for ref forwarding, and it applies the computed class names from `toggleVariants` using a utility function `cn`. This pattern allows for the seamless integration of styles and props.
+
 
 
 ---
 
-## Scene 4: Display Name and Exports (15s)
+## Scene 29: Scene 4: Exporting the Toggle Component (15s)
 
-Finally, we'll look at how the component is prepared for consumption by setting a display name and exporting it.
+Finally, the component and its variants are exported for use in other parts of the application.
 
-
-### Code Highlights
-
-**src/components/ui/toggle.tsx** (lines 36-38):
-```
+```tsx
 Toggle.displayName = TogglePrimitive.Root.displayName
-
+```
+```tsx
 export { Toggle, toggleVariants }
 ```
-Setting the `displayName` helps with debugging, and exporting allows the Toggle to be used in other parts of the application.
-
-
-This breakdown helps you understand the structure and styling of the Toggle component, making it easier to customize and integrate into your projects.
+These lines set the display name for better debugging and export the Toggle component and its variants so they can be used throughout the application.
 
 ---
 

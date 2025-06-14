@@ -63,14 +63,29 @@ class ScriptGenerator:
             batches.append(current_batch)
         # Process each batch
         all_scenes = []
+        global_scene_idx = 1
         for idx, batch in enumerate(batches):
-            print(f"[Batching] Processing batch {idx+1}/{len(batches)} with {len(batch)} files...")
+            chapter_title = f"Chapter {idx+1}: Files in this chapter"
+            chapter_content = "This chapter covers the following files:\n" + "\n".join([f['path'] for f in batch])
+            from ..models.script import Scene
+            chapter_scene = Scene(
+                title=chapter_title,
+                duration=5,
+                content=chapter_content,
+                code_highlights=[]
+            )
+            all_scenes.append(chapter_scene)
+            print(f"[Batching] Processing chapter {idx+1}/{len(batches)} with {len(batch)} files...")
             try:
                 script = await self.llm_service.generate_script(batch, proficiency, depth)
-                print(f"[Batching] Batch {idx+1} processed successfully. Scenes added: {len(script.scenes)}.")
-                all_scenes.extend(script.scenes)
+                print(f"[Batching] Chapter {idx+1} processed successfully. Scenes added: {len(script.scenes)}.")
+                # Number scenes globally
+                for scene in script.scenes:
+                    scene.title = f"Scene {global_scene_idx}: {scene.title}"
+                    global_scene_idx += 1
+                    all_scenes.append(scene)
             except Exception as e:
-                print(f"[Batching] Error processing batch {idx+1}: {e}. Skipping batch.")
+                print(f"[Batching] Error processing chapter {idx+1}: {e}. Skipping chapter.")
                 skipped_files.extend([f['path'] for f in batch])
                 continue
         # Add a scene at the start if any files were skipped
