@@ -67,6 +67,13 @@
 - Successfully tested `/api/test-llm` endpoint with curl, confirming OpenAI connectivity and response
 - Ready to proceed with full script generation flow
 
+### June 2024: Scene-Based Script Generation with Code Blocks
+- Updated LLM prompt to require actual code snippets (as fenced code blocks) for every code highlight in each scene, unless the scene is only context/transition.
+- Enhanced the response parser to extract code blocks from the LLM output, and if missing, fetch the code directly from the file using line numbers.
+- Updated the `CodeHighlight` model to include a `code` field and improved Markdown rendering to always show code blocks after each explanation.
+- The generated Markdown scripts are now suitable for both human review and downstream video generation.
+- Successfully tested end-to-end: can now generate scene-based explanations with code for a single file (e.g., `App.tsx` from snap-read).
+
 ---
 
 **This log is intended for all agents and contributors to quickly understand the current state and history of the VibeParse project.** 

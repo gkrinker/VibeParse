@@ -3,6 +3,7 @@ import os
 from dotenv import load_dotenv
 from openai import AsyncOpenAI
 from ..models.script import Script, Scene, CodeHighlight
+import re
 
 # Load environment variables
 load_dotenv()
@@ -50,37 +51,36 @@ class LLMService:
     def _construct_prompt(self, files: List[Dict[str, str]], proficiency: str, depth: str) -> str:
         """Construct the prompt for the LLM based on files and parameters."""
         prompt = f"""Please analyze the following code and generate an explanation script.
-        Follow this exact format for each scene:
+For each scene, provide:
+- A title and duration
+- An explanation (context or connective tissue if needed)
+- For every code highlight, include:
+    - File name and line numbers
+    - The actual code snippet as a fenced code block (with language if possible)
+    - A plain-English explanation of the code
+If a scene is only context/transition, you may omit code highlights.
 
-        ## Scene Title (duration in seconds)
-        [Scene content here]
+Format example:
 
-        ### Code Highlights
-        **file_path.py** (lines X-Y):
-        [Description of the highlighted code]
+## Scene Title (duration in seconds)
+Scene explanation here.
 
-        ---
+### Code Highlights
+**App.tsx** (lines 2-10):
+```tsx
+// code from lines 2-10 here
+```
+Explanation of the code above.
 
-        For example:
-        ## Main Function Overview (25s)
-        This function handles the core logic of our application. It takes user input, processes it through several steps, and returns a formatted result.
+---
 
-        ### Code Highlights
-        **main.py** (lines 10-15):
-        The function signature and input validation logic ensure we only process valid data.
-
-        ---
-
-        Now, analyze these files:
-        """
-        
+Now, analyze these files:
+"""
         prompt += f"\nProficiency Level: {proficiency}\n"
         prompt += f"Depth: {depth}\n\n"
-        
         for file in files:
             prompt += f"File: {file['path']}\n"
             prompt += f"Content:\n{file['content']}\n\n"
-            
         return prompt
     
     def _get_system_prompt(self, proficiency: str) -> str:
@@ -108,59 +108,100 @@ class LLMService:
         """Parse the LLM response into a Script object."""
         scenes = []
         current_scene = None
-        
-        for line in response.split('\n'):
-            line = line.strip()
-            
+        code_highlight_pattern = re.compile(r"\*\*(.+?)\*\* \(lines (\d+)[-–](\d+)\):?")
+        code_block_pattern = re.compile(r"```[a-zA-Z]*\n([\s\S]*?)```", re.MULTILINE)
+        file_content_map = {f['path']: f['content'].splitlines() for f in files}
+        lines = response.split('\n')
+        i = 0
+        while i < len(lines):
+            line = lines[i].strip()
             # New scene
             if line.startswith('## '):
                 if current_scene:
                     scenes.append(current_scene)
-                
-                # Parse title and duration
                 title_duration = line[3:].split('(')
                 title = title_duration[0].strip()
-                duration = int(title_duration[1].split('s')[0]) if len(title_duration) > 1 else 20
-                
+                duration = 20
+                if len(title_duration) > 1:
+                    try:
+                        duration = int(title_duration[1].split('s')[0].strip())
+                    except Exception:
+                        pass
                 current_scene = Scene(
                     title=title,
                     duration=duration,
                     content="",
                     code_highlights=[]
                 )
-            
+                i += 1
+                continue
             # Code highlight
-            elif line.startswith('**') and '**' in line[2:]:
-                if current_scene:
-                    # Parse file path and line numbers
-                    parts = line[2:].split('**')
-                    file_path = parts[0]
-                    line_nums = parts[1].strip('()').split('-')
-                    
+            elif line.startswith('**'):
+                match = code_highlight_pattern.match(line)
+                if match and current_scene:
+                    file_path = match.group(1).strip()
+                    try:
+                        start_line = int(match.group(2))
+                        end_line = int(match.group(3))
+                    except Exception:
+                        i += 1
+                        continue
+                    # Look ahead for code block
+                    code = ""
+                    description = ""
+                    j = i + 1
+                    # Find code block
+                    while j < len(lines):
+                        code_line = lines[j].strip()
+                        if code_line.startswith('```'):
+                            code_block_lines = []
+                            j += 1
+                            while j < len(lines) and not lines[j].strip().startswith('```'):
+                                code_block_lines.append(lines[j])
+                                j += 1
+                            code = '\n'.join(code_block_lines)
+                            j += 1  # skip closing ```
+                            break
+                        elif code_line == '' or code_line.startswith('**') or code_line.startswith('##') or code_line.startswith('---'):
+                            break
+                        else:
+                            j += 1
+                    # If no code block, fallback to file content
+                    if not code and file_path in file_content_map:
+                        file_lines = file_content_map[file_path]
+                        code = '\n'.join(file_lines[start_line-1:end_line])
+                    # After code block, next non-empty line(s) is description
+                    desc_lines = []
+                    while j < len(lines):
+                        desc_line = lines[j].strip()
+                        if desc_line == '' or desc_line.startswith('**') or desc_line.startswith('##') or desc_line.startswith('---'):
+                            break
+                        desc_lines.append(desc_line)
+                        j += 1
+                    description = '\n'.join(desc_lines)
                     highlight = CodeHighlight(
                         file_path=file_path,
-                        start_line=int(line_nums[0]),
-                        end_line=int(line_nums[1]),
-                        description=""
+                        start_line=start_line,
+                        end_line=end_line,
+                        code=code,
+                        description=description
                     )
                     current_scene.code_highlights.append(highlight)
-            
-            # Description for code highlight
+                    i = j
+                    continue
+            # Description for code highlight (legacy fallback)
             elif current_scene and current_scene.code_highlights and not line.startswith(('##', '###', '---')):
                 if current_scene.code_highlights[-1].description == "":
                     current_scene.code_highlights[-1].description = line
                 else:
                     current_scene.code_highlights[-1].description += "\n" + line
-            
             # Scene content
             elif current_scene and not line.startswith(('##', '###', '---')):
                 if current_scene.content == "":
                     current_scene.content = line
                 else:
                     current_scene.content += "\n" + line
-        
-        # Add the last scene
+            i += 1
         if current_scene:
             scenes.append(current_scene)
-        
         return Script(scenes=scenes) 

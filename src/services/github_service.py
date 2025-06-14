@@ -68,4 +68,19 @@ class GitHubService:
             
             return files
         except Exception as e:
-            raise Exception(f"Error fetching directory content: {str(e)}") 
+            raise Exception(f"Error fetching directory content: {str(e)}")
+
+    async def fetch_code(self, url: str, file_types: Optional[List[str]] = None) -> List[Dict]:
+        """
+        Fetch code from a GitHub file or directory URL.
+        Returns a list of file dicts (with 'path', 'content', 'type').
+        """
+        if "/blob/" in url:
+            # Single file
+            file = await self.get_file_content(url)
+            return [file]
+        elif "/tree/" in url:
+            # Directory
+            return await self.get_directory_content(url, file_types)
+        else:
+            raise Exception("Invalid GitHub URL: must contain /blob/ or /tree/") 

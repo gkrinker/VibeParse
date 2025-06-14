@@ -7,6 +7,7 @@ class CodeHighlight(BaseModel):
     start_line: int
     end_line: int
     description: str
+    code: str = ""
 
 class Scene(BaseModel):
     """Represents a single scene in the explanation script."""
@@ -31,6 +32,8 @@ class Script(BaseModel):
                 markdown += "### Code Highlights\n\n"
                 for highlight in scene.code_highlights:
                     markdown += f"**{highlight.file_path}** (lines {highlight.start_line}-{highlight.end_line}):\n"
+                    if highlight.code:
+                        markdown += f"```\n{highlight.code}\n```\n"
                     markdown += f"{highlight.description}\n\n"
             
             markdown += "---\n\n"
