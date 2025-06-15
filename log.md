@@ -186,3 +186,5 @@
 2024-06-15: Added tiktoken==0.6.0 to requirements.txt to fix ModuleNotFoundError during deployment on Render.com. 
 
 2024-06-15: Added pygments, Pillow, and moviepy to requirements.txt to ensure all backend dependencies are included for deployment on Render.com. 
+
+2024-06-15: Fixed moviepy import in src/video/video_composer.py to use moviepy.editor for ImageClip, AudioFileClip, and CompositeVideoClip as required by the library. 

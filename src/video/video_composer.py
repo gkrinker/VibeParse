@@ -2,7 +2,7 @@
 Composes video from code images and narration audio.
 """
 from typing import List, Tuple, Optional
-from moviepy import ImageClip, AudioFileClip, CompositeVideoClip
+from moviepy.editor import ImageClip, AudioFileClip, CompositeVideoClip
 from moviepy.video.fx.Resize import Resize
 
 class VideoComposer:
