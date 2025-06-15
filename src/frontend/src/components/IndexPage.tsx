@@ -5,6 +5,12 @@ const proficiencies = ['beginner', 'intermediate', 'advanced'];
 const depths = ['key-parts', 'full'];
 const fileTypes = ['.py', '.js', '.ts', '.tsx', '.jsx', '.java', '.cpp', '.c', '.go', '.rb'];
 
+// Utility to get API base URL
+const getApiUrl = (path: string) => {
+  const base = process.env.REACT_APP_API_URL || '';
+  return `${base}${path}`;
+};
+
 const IndexPage: React.FC = () => {
   const [githubUrl, setGithubUrl] = useState('');
   const [proficiency, setProficiency] = useState('beginner');
@@ -25,7 +31,7 @@ const IndexPage: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('/api/generate-script', {
+      const response = await fetch(getApiUrl('/api/generate-script'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

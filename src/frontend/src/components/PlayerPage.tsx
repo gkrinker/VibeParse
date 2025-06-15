@@ -3,6 +3,12 @@ import { useParams } from 'react-router-dom';
 import ScenePlayer from './ScenePlayer';
 import { Script } from '../types/script';
 
+// Utility to get API base URL
+const getApiUrl = (path: string) => {
+  const base = process.env.REACT_APP_API_URL || '';
+  return `${base}${path}`;
+};
+
 const PlayerPage: React.FC = () => {
   const { scriptID } = useParams<{ scriptID: string }>();
   const [script, setScript] = useState<Script | null>(null);
@@ -13,7 +19,7 @@ const PlayerPage: React.FC = () => {
   useEffect(() => {
     const fetchScript = async () => {
       try {
-        const response = await fetch(`/api/scripts/${scriptID}`);
+        const response = await fetch(getApiUrl(`/api/scripts/${scriptID}`));
         if (!response.ok) throw new Error('Failed to load script');
         const data = await response.json();
         setScript(data);
