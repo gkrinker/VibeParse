@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import ScenePlayer from './ScenePlayer';
 import { Script } from '../types/script';
+import Header from './Header';
 
 // Utility to get API base URL
 const getApiUrl = (path: string) => {
@@ -74,13 +75,19 @@ const PlayerPage: React.FC = () => {
   };
 
   return (
-    <ScenePlayer
-      scene={currentScene}
-      onNext={handleNext}
-      onPrevious={handlePrevious}
-      isFirst={currentSceneIndex === 0}
-      isLast={currentSceneIndex === script.scenes.length - 1}
-    />
+    <>
+      <Header />
+      <ScenePlayer
+        scene={currentScene}
+        onNext={handleNext}
+        onPrevious={handlePrevious}
+        isFirst={currentSceneIndex === 0}
+        isLast={currentSceneIndex === script.scenes.length - 1}
+        script={script}
+        currentSceneIndex={currentSceneIndex}
+        setCurrentSceneIndex={setCurrentSceneIndex}
+      />
+    </>
   );
 };
 
