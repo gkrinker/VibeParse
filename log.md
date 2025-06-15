@@ -184,3 +184,5 @@
 2024-06-15: Pinned pydantic to 2.5.3 and added pydantic-core 2.14.6 in requirements.txt to avoid Rust build issues on Render.com. Removed pydantic==2.6.1.
 
 2024-06-15: Added tiktoken==0.6.0 to requirements.txt to fix ModuleNotFoundError during deployment on Render.com. 
+
+2024-06-15: Added pygments, Pillow, and moviepy to requirements.txt to ensure all backend dependencies are included for deployment on Render.com. 
