@@ -37,7 +37,7 @@ class ScriptGenerator:
         files = await self.github_service.fetch_code(github_url, file_types)
         
         # Tokenizer for estimation
-        enc = tiktoken.encoding_for_model("gpt-4o")
+        enc = tiktoken.encoding_for_model("gpt-4")
         MAX_TOKENS = 10000  # Safe threshold per batch
         batches = []
         current_batch = []
