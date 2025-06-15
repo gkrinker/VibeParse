@@ -176,4 +176,7 @@
 
 ---
 
-**This log is intended for all agents and contributors to quickly understand the current state and history of the VibeParse project.** 
+**This log is intended for all agents and contributors to quickly understand the current state and history of the VibeParse project.**
+
+---
+2024-06-15: Added runtime.txt to pin Python version to 3.11.9 for Render.com deployment. This avoids build errors related to Rust and ensures pre-built wheels are used for dependencies like pydantic-core and aiohttp. 
