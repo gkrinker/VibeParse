@@ -18,4 +18,8 @@ ENV/
 
 # OS
 .DS_Store
-Thumbs.db 
+Thumbs.db
+
+# Ignore node_modules and build caches
+node_modules/
+**/.cache/ 
