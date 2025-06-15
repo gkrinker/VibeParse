@@ -181,4 +181,6 @@
 ---
 2024-06-15: Added runtime.txt to pin Python version to 3.11.9 for Render.com deployment. This avoids build errors related to Rust and ensures pre-built wheels are used for dependencies like pydantic-core and aiohttp. 
 
-2024-06-15: Pinned pydantic to 2.5.3 and added pydantic-core 2.14.6 in requirements.txt to avoid Rust build issues on Render.com. Removed pydantic==2.6.1. 
+2024-06-15: Pinned pydantic to 2.5.3 and added pydantic-core 2.14.6 in requirements.txt to avoid Rust build issues on Render.com. Removed pydantic==2.6.1.
+
+2024-06-15: Added tiktoken==0.6.0 to requirements.txt to fix ModuleNotFoundError during deployment on Render.com. 
