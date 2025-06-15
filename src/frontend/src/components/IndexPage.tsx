@@ -57,7 +57,7 @@ const IndexPage: React.FC = () => {
   return (
     <>
       <Header />
-      <div className="flex items-center justify-center h-screen">
+      <div className="flex items-center justify-center mt-12">
         <form className="bg-white p-8 rounded shadow-md w-full max-w-md" onSubmit={handleSubmit}>
           <h1 className="text-2xl font-bold mb-4">Generate Code Explanation Script</h1>
           <label className="block mb-2">GitHub URL</label>
@@ -88,7 +88,7 @@ const IndexPage: React.FC = () => {
               <option key={d} value={d}>{d}</option>
             ))}
           </select>
-          <label className="block mb-2">File Types</label>
+          {/* <label className="block mb-2">File Types</label>
           <div className="flex flex-wrap mb-4">
             {fileTypes.map(type => (
               <label key={type} className="mr-4 mb-2 flex items-center">
@@ -101,7 +101,7 @@ const IndexPage: React.FC = () => {
                 {type}
               </label>
             ))}
-          </div>
+          </div> */}
           {error && <div className="text-red-500 mb-2">{error}</div>}
           <button
             type="submit"

@@ -200,3 +200,15 @@
 - Removed all files in test_output/ from git tracking using git rm --cached -r test_output/.
 - Committed and pushed the cleanup to remote.
 - This ensures test output files are ignored in future commits and keeps the repository clean.
+
+# 17. 2024-06-XX: Frontend UI/UX Improvements and Layout Fixes
+- Set the background of the entire app to white for a cleaner look.
+- Ensured code block and explanation are always visually separated and on correct backgrounds.
+- Removed flex-1 from scrollable area so content only grows with children.
+- Cleaned up code block container spacing and scroll behavior.
+- Added/updated Header component for navigation.
+- Committed and pushed all changes to git.
+
+1. Hid the UI for the File Types section in the frontend form (IndexPage.tsx) by commenting out the label and checkboxes rendering code. Left the related state and logic untouched as requested.
+
+2. Reduced empty space above the form on the index page by removing 'h-screen' from the container div and adding 'mt-12' for a more compact, top-aligned layout. (IndexPage.tsx)
