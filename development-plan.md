@@ -142,7 +142,7 @@ curl -X POST http://localhost:8000/api/generate-explanation \
 
 1. **API Rate Limits**
    - Implement caching for GitHub API calls
-   - Queue system for video generation
+   - Queue system for explanation generation
 
 2. **Cost Control**
    - Token usage monitoring
@@ -151,7 +151,7 @@ curl -X POST http://localhost:8000/api/generate-explanation \
 
 3. **Performance**
    - Async processing for long-running tasks
-   - Progress tracking for video generation
+   - Progress tracking for explanation generation
    - Fallback options for failed generations 
 
 ## 🚦 Pre-Production Checklist (June 2024)

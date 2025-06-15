@@ -1,10 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .routes import code, script, test, video
+from .routes import code, script, test
 
 app = FastAPI(
     title="VibeParse",
-    description="AI-powered code explanation video generator",
+    description="AI-powered code explanation generator",
     version="0.1.0"
 )
 
@@ -21,7 +21,6 @@ app.add_middleware(
 app.include_router(code.router, prefix="/api", tags=["code"])
 app.include_router(script.router, prefix="/api", tags=["script"])
 app.include_router(test.router, prefix="/api", tags=["test"])
-app.include_router(video.router, prefix="/api", tags=["video"])
 
 @app.get("/")
 async def root():

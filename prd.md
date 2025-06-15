@@ -6,7 +6,7 @@
 
 We're entering an era where AI is generating more code than humans. Developers are increasingly pasting in Copilot or ChatGPT-generated snippets without deeply understanding them. This is especially true in rapid prototyping or MVP work—where time trumps clarity.
 
-But the cost comes later: debugging code you don't understand, misusing libraries, or being unable to explain how things work to teammates or future maintainers. Reading code is cognitively taxing. Watching a quick, bite-sized explanation, tailored to your skill level, reduces friction and makes understanding code feel more like a tutorial than doing a chore.
+But the cost comes later: debugging code you don't understand, misusing libraries, or being unable to explain how things work to teammates or future maintainers. Reading code is cognitively taxing. Getting a quick, bite-sized explanation, tailored to your skill level, reduces friction and makes understanding code feel more like a tutorial than doing a chore.
 
 This product is purpose-built for that moment—the early days of 'vibe coding'—where AI writes the code, and you just want to know what it actually *does*.
 
@@ -23,14 +23,14 @@ This product is purpose-built for that moment—the early days of 'vibe coding'�
 ### 2. Junior Developers / Interns
 - **Pain**: You used ChatGPT to scaffold your feature, and now there's a bug. You don't even remember how half of this logic came together. You stare at a wall of code, unsure where the problem starts, too embarrassed to ask your senior dev to walk through what *your* commit does. You just want a five-minute breakdown so you can fix it, fast.
 - **Distribution Strategy**:
-  - Share video explainers for trending GitHub repos on LinkedIn
+  - Share explainers for trending GitHub repos on LinkedIn
   - Twitter/X ads targeting early-career devs
   - Offer Chrome extension to use directly on GitHub
 
 ### 3. Technical PMs / Designers / Non-coders
 - **Pain**: The dev team shared a link to a GitHub repo with the new AI-generated backend logic. It looks like Greek. You scroll through hundreds of lines, trying to extract enough context to write your spec or update a deck. You wish someone could just summarize what this thing *does*, in plain English.
 - **Distribution Strategy**:
-  - Publish demo videos explaining famous open-source projects
+  - Publish demo explainers for famous open-source projects
   - Launch on ProductHunt with a "non-coder friendly" angle
   - LinkedIn ads focused on PMs and tech leads
 
@@ -60,11 +60,11 @@ This product is purpose-built for that moment—the early days of 'vibe coding'�
 ## 💰 Monetization Strategy
 
 ### ⭐ Top Recommendation: Paid Credits for Explainers
-- Users pay for credits (e.g. 3 videos = $5, 10 = $10)
+- Users pay for credits (e.g. 3 explanations = $5, 10 = $10)
 - **Why**:
   - Easy entry for low-commitment users
   - Freemium model = wide top of funnel
-  - Allows tight cost control on AI/video processing
+  - Allows tight cost control on AI processing
 - **MRR Estimate (Month 1)**:
   - 1,000 free signups via Reddit + PH + LinkedIn
   - 10% convert → 100 paid users
@@ -74,29 +74,29 @@ This product is purpose-built for that moment—the early days of 'vibe coding'�
 - Higher barrier for casual users
 - Harder to justify unless using weekly
 
-### ⚠️ Alternative 2: Ad-Supported Videos
+### ⚠️ Alternative 2: Ad-Supported Explanations
 - Poor UX, hurts perceived quality
-- Revenue per user too low to justify AI + video cost
+- Revenue per user too low to justify AI cost
 
 ---
 
 ## ❗ Biggest Uncertainties + Mitigations
 
-### ❓ Will users *actually* watch explainer videos of code?
-- **24h Test**: Post 3 code explainers on Reddit + Twitter. Measure watch rate + engagement.
-- **Mitigation**: Offer a faster, lightweight mode: "text + audio only"—no visuals, no video rendering. This makes it cheaper to produce and faster to deliver while still delivering the core value of clarity. It also gives users an option when they want a quick listen or skim, not a full walkthrough.
+### ❓ Will users *actually* use code explainers?
+- **24h Test**: Post 3 code explainers on Reddit + Twitter. Measure engagement.
+- **Mitigation**: Offer a faster, lightweight mode: "text only"—no visuals, no video rendering. This makes it cheaper to produce and faster to deliver while still delivering the core value of clarity. It also gives users an option when they want a quick listen or skim, not a full walkthrough.
 
 ### ❓ Will LLMs give consistently accurate + simple explanations?
 - **Test**: Run 20 sample files through prompt variations.
-- **Mitigation**: Add feedback button on every video: "Was this accurate?"
+- **Mitigation**: Add feedback button on every explanation: "Was this accurate?"
 
 ### ❓ Can we keep generation cost low enough for profit?
-- **Data**: Track average API + rendering time per explainer in MVP
+- **Data**: Track average API processing time per explainer in MVP
 - **Mitigation**: Cap free usage and experiment with token-efficient prompts
 
 ### ❓ Will context switching (leaving coding environment) hurt adoption?
-- **Risk**: Requiring users to leave GitHub, VS Code, or their coding tool to visit a separate website to view their video might break flow and reduce usage.
-- **Mitigation**: Develop a browser extension or in-editor plugin (e.g., VS Code) to preview and access videos directly within GitHub or the IDE. Offer deep-link embeds or inline previews on PR comments.
+- **Risk**: Requiring users to leave GitHub, VS Code, or their coding tool to visit a separate website to view their explanation might break flow and reduce usage.
+- **Mitigation**: Develop a browser extension or in-editor plugin (e.g., VS Code) to preview and access explanations directly within GitHub or the IDE. Offer deep-link embeds or inline previews on PR comments.
 
 ## 📝 Explanation Design Principles
 
@@ -154,11 +154,10 @@ These features are not required for the initial launch but represent high-levera
 
 ### 🧩 Platform & Integration
 - **Browser Extension and IDE Plugin**: Allow users to generate and view explainers directly in GitHub, VS Code, or browser tabs—eliminating the need to visit a separate site.
-- **Save Video for Later**: Users can bookmark and organize generated videos in their dashboard for review, sharing, or rewatching.
 
 ### 🌐 Accessibility and Customization
 - **Multi-language Support**: Generate explanations and voiceovers in multiple spoken and programming languages to serve international and multilingual users.
-- **Customize Voice and Visual Style**: Let users choose narration voice tone (e.g., friendly, professional, funny) and video theme (e.g., dark mode, brand colors).
+- **Customize Voice and Visual Style**: Let users choose narration voice tone (e.g., friendly, professional, funny) and theme (e.g., dark mode, brand colors).
 
 ### 👥 Community & Collaboration
 - **Peer Review System**: Users can validate, flag, or suggest improvements to AI explanations, improving trust and accuracy.
@@ -169,8 +168,8 @@ These features are not required for the initial launch but represent high-levera
 - **Smart Suggestions**: Recommend related repos or explanations based on previous usage.
 
 ### 📝 Non-MVP Feature: Reading Mode for Scripts
-- Allow users to view the generated explanation script as formatted Markdown or HTML for reading, not just for video consumption.
-- This mode should provide clear scene structure, code highlights, and explanations for users who prefer to read rather than watch a video.
+- Allow users to view the generated explanation script as formatted Markdown or HTML for reading.
+- This mode should provide clear section structure, code highlights, and explanations for users who prefer to read rather than watch a video.
 
 ## ⚠️ Additional Risk Mitigation (June 2024)
 - Before production, enforce a hard limit on the number of files and/or total code size (lines/tokens) per request to prevent LLM overload and ensure reliability.
