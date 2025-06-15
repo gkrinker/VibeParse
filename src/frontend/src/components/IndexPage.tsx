@@ -7,8 +7,9 @@ const fileTypes = ['.py', '.js', '.ts', '.tsx', '.jsx', '.java', '.cpp', '.c', '
 
 // Utility to get API base URL
 const getApiUrl = (path: string) => {
-  const base = process.env.REACT_APP_API_URL || '';
-  return `${base}${path}`;
+  const base = (process.env.REACT_APP_API_URL || '').replace(/\/+$/, '');
+  const cleanPath = path.replace(/^\/+/, '');
+  return `${base}/${cleanPath}`;
 };
 
 const IndexPage: React.FC = () => {
