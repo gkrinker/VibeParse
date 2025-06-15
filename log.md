@@ -1,5 +1,10 @@
 # 📝 VibeParse Project Log
 
+### June 2024: Product Pivot to Code + Explanations (No Video)
+- Pivoted product direction: now outputs code snippets and bite-sized explanations for a frontend, not video content.
+- Updated `prd.md`, `development-plan.md`, and `readme.md` to reflect the new focus on code + explanations and removed video/TTS-specific sections.
+- Strengthened LLM prompt to require every code entity mention to be wrapped in Markdown backticks and clarified explanation requirements for clarity and consistency. **(Later reverted: explicit code entity formatting instruction was removed, now using default LLM behavior.)**
+
 ### June 2024: Video generation working but sometimes rendered code is too small
 - [2024-06-XX] Video generation pipeline is functional and produces scene-based videos from Markdown scripts.
 - However, rendered code is sometimes too small for optimal viewing; further improvements to dynamic font sizing or layout may be needed.
@@ -61,6 +66,19 @@
 - Updated the `CodeHighlight` model to include a `code` field and improved Markdown rendering to always show code blocks after each explanation.
 - The generated Markdown scripts are now suitable for both human review and downstream video generation.
 - Successfully tested end-to-end: can now generate scene-based explanations with code for a single file (e.g., `App.tsx` from snap-read).
+
+### June 2024: Web-Based Scene Player Implementation
+- [2024-06-XX] Implemented new web-based scene player approach:
+  - Created React frontend with TypeScript and Tailwind CSS
+  - Implemented ScenePlayer component with navigation
+  - Added CodeDisplay with syntax highlighting
+  - Added AudioPlayer with basic controls
+  - Set up project structure and dependencies
+  - Ready for integration with backend API
+
+### June 2024: Fix Redundant Scene Title Prefix
+- Updated `src/services/script_generator.py` to only prepend `Scene X:` to scene titles if not already present.
+- Prevents double prefixes like `Scene 2: Scene 2: Anchoring the App` in generated markdown and UI.
 
 ## Phase 2: Code Analysis & Script Generation (June 2024)
 
@@ -128,6 +146,33 @@
 ### 5. Next Steps
 - Phase 1 (code retrieval) is complete and tested
 - Ready to proceed to Phase 2: Code Analysis & Script Generation
+
+# Development Log
+
+## Dependency Management and Security Updates (2024-03-21)
+
+### Cleanup and Optimization
+- Removed unused Redux dependencies:
+  - Removed @reduxjs/toolkit
+  - Removed react-redux
+- Kept @types/react-syntax-highlighter for TypeScript support
+- All other core dependencies remain unchanged as they are actively used in the codebase
+
+### Security Updates
+- Updated react-syntax-highlighter to v15.6.1 to address highlight.js vulnerabilities
+- Updated postcss to v8.4.31 to address security issues
+- Verified all TypeScript type definitions are up to date
+
+### Dependency Verification
+- Performed clean reinstall of all dependencies
+- Verified package compatibility
+- Addressed security vulnerabilities in direct dependencies
+- Note: Some remaining warnings are from transitive dependencies (dependencies of dependencies) and don't affect security
+
+### Current Status
+- All critical security vulnerabilities have been addressed
+- Application dependencies are now optimized and secure
+- Development environment is properly configured with correct versions
 
 ---
 

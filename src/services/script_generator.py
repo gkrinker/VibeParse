@@ -5,6 +5,7 @@ from .github_service import GitHubService
 from .llm_service import LLMService
 from ..models.script import Script
 import tiktoken
+import re
 
 class ScriptGenerator:
     def __init__(self):
@@ -81,7 +82,9 @@ class ScriptGenerator:
                 print(f"[Batching] Chapter {idx+1} processed successfully. Scenes added: {len(script.scenes)}.")
                 # Number scenes globally
                 for scene in script.scenes:
-                    scene.title = f"Scene {global_scene_idx}: {scene.title}"
+                    # Only prepend if not already present
+                    if not re.match(r'^Scene \d+:', scene.title):
+                        scene.title = f"Scene {global_scene_idx}: {scene.title}"
                     global_scene_idx += 1
                     all_scenes.append(scene)
             except Exception as e:

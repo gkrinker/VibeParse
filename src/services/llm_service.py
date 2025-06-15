@@ -51,32 +51,7 @@ class LLMService:
     
     def _construct_prompt(self, files: List[Dict[str, str]], proficiency: str, depth: str) -> str:
         """Construct the prompt for the LLM based on files and parameters."""
-        prompt = f"""Please analyze the following code and generate an explanation script.
-For each scene, provide:
-- A title and duration
-- An explanation (context or connective tissue if needed)
-- For every code highlight, include:
-    - File name and line numbers
-    - The actual code snippet as a fenced code block (with language if possible)
-    - A plain-English explanation of the code
-If a scene is only context/transition, you may omit code highlights.
-
-Format example:
-
-## Scene Title (duration in seconds)
-Scene explanation here.
-
-### Code Highlights
-**App.tsx** (lines 2-10):
-```tsx
-// code from lines 2-10 here
-```
-Explanation of the code above.
-
----
-
-Now, analyze these files:
-"""
+        prompt = f"""Please analyze the following code and generate an explanation script.\nFor each scene, provide:\n- A title and duration\n- Exactly one code snippet (as a fenced code block, with language if possible)\n- Pair the code snippet with a detailed, plain-English explanation\n- The explanation should be detailed enough that reading or listening to it would take between 15 and 30 seconds\n- Do not mention or reference the word 'scene' or any script structure (e.g., 'In this scene', 'The next scene', etc.) in your explanations. Write as if you are naturally explaining the code to a learner.\nIf a scene is only context/transition, you may omit the code snippet.\n\nFormat example:\n\n## Scene Title (duration in seconds)\nExplanation here.\n\n### Code Highlights\n**App.tsx** (lines 2-10):\n```tsx\n// code from lines 2-10 here\n```\nExplanation of the code above.\n\n---\n\nNow, analyze these files:\n"""
         prompt += f"\nProficiency Level: {proficiency}\n"
         prompt += f"Depth: {depth}\n\n"
         for file in files:
@@ -86,16 +61,7 @@ Now, analyze these files:
     
     def _get_system_prompt(self, proficiency: str) -> str:
         """Get the system prompt based on proficiency level."""
-        base_prompt = """You are an expert code explainer. Your task is to generate a script for explaining code.
-        Follow these guidelines:
-        1. Break down the explanation into scenes (15-30 seconds each)
-        2. Each scene should focus on 1-2 concepts
-        3. Include specific code highlights for each scene
-        4. Use analogies and examples where appropriate
-        5. Format the output in Markdown
-        6. Each scene must have a title and duration
-        7. Each code highlight must specify the file path and line numbers
-        """
+        base_prompt = """You are an expert code explainer. Your task is to generate a script for explaining code.\n        Follow these guidelines:\n        1. Break down the explanation into scenes (15-30 seconds each)\n        2. Each scene should focus on 1-2 concepts\n        3. Each scene must include exactly one code snippet, paired with a detailed explanation\n        4. The explanation for each code snippet should be detailed enough to take 15-30 seconds to consume\n        5. Do not mention or reference the word 'scene' or any script structure (e.g., 'In this scene', 'The next scene', etc.) in your explanations. Write as if you are naturally explaining the code to a learner.\n        6. Use analogies and examples where appropriate\n        7. Format the output in Markdown\n        8. Each scene must have a title and duration\n        9. Each code highlight must specify the file path and line numbers\n        """
         
         proficiency_prompts = {
             "beginner": "Focus on basic concepts, use simple analogies, and explain everything step by step. Aim for 3-5 scenes per function.",

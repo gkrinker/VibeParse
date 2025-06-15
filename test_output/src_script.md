@@ -14,7 +14,7 @@ src/components/ui/alert-dialog.tsx
 
 ---
 
-## Scene 1: Scene 1: Setting Up the App with Providers (30s)
+## Scene 1: Setting Up the App with Providers (30s)
 
 In this scene, we'll explore how the App component is structured with various providers for managing state, notifications, and routing. This foundational setup is vital for a fully functional React application.
 
@@ -42,7 +42,7 @@ These lines wrap the app in various context providers. The `QueryClientProvider`
 
 ---
 
-## Scene 2: Scene 2: Navigating the App with React Router (25s)
+## Scene 2: Navigating the App with React Router (25s)
 
 Next, we'll delve into how routing is set up, allowing users to navigate between different pages of the application.
 
@@ -65,7 +65,7 @@ This block establishes the routing structure using `BrowserRouter`, `Routes`, an
 
 ---
 
-## Scene 3: Scene 3: Understanding CardActions Component (30s)
+## Scene 3: Understanding CardActions Component (30s)
 
 We now shift focus to the `CardActions` component, which provides interactive actions for each flashcard, such as bookmarking or asking AI questions.
 
@@ -103,7 +103,7 @@ This function handles the AI question submission. It simulates an AI response wi
 
 ---
 
-## Scene 4: Scene 4: File Upload Process in FileUpload Component (30s)
+## Scene 4: File Upload Process in FileUpload Component (30s)
 
 Let's look at how the `FileUpload` component manages file selection, validation, and uploading.
 
@@ -143,7 +143,7 @@ This `validateFile` function checks the type and size of the file. Consider it t
 
 ---
 
-## Scene 5: Scene 5: Managing Progress with ProgressBar (25s)
+## Scene 5: Managing Progress with ProgressBar (25s)
 
 Finally, we explore the `ProgressBar` component, which visually represents progress through flashcards or tasks.
 
@@ -189,7 +189,7 @@ src/components/ui/command.tsx
 
 ---
 
-## Scene 6: Scene 1: Understanding Alert Variants (30s)
+## Scene 6: Understanding Alert Variants (30s)
 
 In this scene, we will explore how the alert component is styled and how different styles can be applied using variants.
 
@@ -220,7 +220,7 @@ Here, `alertVariants` is defined using the `cva` function, which helps create cl
 
 ---
 
-## Scene 7: Scene 2: Forwarding Refs in Alert Components (25s)
+## Scene 7: Forwarding Refs in Alert Components (25s)
 
 Let's see how React's `forwardRef` is used in the `Alert`, `AlertTitle`, and `AlertDescription` components to manage refs and props.
 
@@ -265,7 +265,7 @@ Similarly, `AlertTitle` also uses `forwardRef` for its `h5` element, enabling th
 
 ---
 
-## Scene 8: Scene 3: Building the Badge Component with Variants (30s)
+## Scene 8: Building the Badge Component with Variants (30s)
 
 Now, let's switch gears and look at the badge component, which also uses the CVA for styling with variants.
 
@@ -297,7 +297,7 @@ The `badgeVariants` object is created using the `cva` function, similar to the a
 
 ---
 
-## Scene 9: Scene 4: Creating the Badge Component (25s)
+## Scene 9: Creating the Badge Component (25s)
 
 Let's see how the `Badge` component is constructed and how it utilizes the `badgeVariants`.
 
@@ -322,7 +322,7 @@ The `Badge` component is a simple functional component that applies styles using
 
 ---
 
-## Scene 10: Scene 5: Understanding Avatar Component Structure (30s)
+## Scene 10: Understanding Avatar Component Structure (30s)
 
 Finally, let's take a glance at the avatar component to understand its structure and styling.
 
@@ -369,7 +369,7 @@ src/components/ui/menubar.tsx
 
 ---
 
-## Scene 11: Scene 1: Setting the Stage with Imports (20s)
+## Scene 11: Setting the Stage with Imports (20s)
 
 Let's start by looking at the imports in our `context-menu.tsx` file. This file imports several libraries and components, which are essential for creating our context menu.
 
@@ -389,7 +389,7 @@ Here, we're importing React, which is the backbone of our component. The `@radix
 
 ---
 
-## Scene 12: Scene 2: Understanding the Context Menu Structure (25s)
+## Scene 12: Understanding the Context Menu Structure (25s)
 
 Now, let's dive into how we define the various parts of a context menu. We use Radix UI primitives to create and export several components.
 
@@ -411,7 +411,7 @@ Each line assigns a Radix UI primitive to a variable, which represents a differe
 
 ---
 
-## Scene 13: Scene 3: Customizing Sub Triggers and Content (30s)
+## Scene 13: Customizing Sub Triggers and Content (30s)
 
 Here, we define custom sub trigger and content components that allow for additional styling and functionality.
 
@@ -447,7 +447,7 @@ The `ContextMenuSubTrigger` is a custom component that allows for adding a subme
 
 ---
 
-## Scene 14: Scene 4: Leveraging Context for Form Fields (25s)
+## Scene 14: Leveraging Context for Form Fields (25s)
 
 Let's transition to the `form.tsx` file, where context is used to manage form fields.
 
@@ -479,7 +479,7 @@ The `FormFieldContext` is created to pass down field names through context. The 
 
 ---
 
-## Scene 15: Scene 5: Integrating Input Components (20s)
+## Scene 15: Integrating Input Components (20s)
 
 Finally, let's look at a simple input component.
 
@@ -528,7 +528,7 @@ src/components/ui/sheet.tsx
 
 ---
 
-## Scene 16: Scene 1: Introduction to Navigation Menu (30s)
+## Scene 16: Introduction to Navigation Menu (30s)
 
 Let's begin by exploring the `NavigationMenu` component. This component is a part of a UI library that helps in creating a navigation menu. It's built using React and leverages a library called `@radix-ui/react-navigation-menu` for managing navigation primitives.
 
@@ -560,7 +560,7 @@ This code defines a React component called `NavigationMenu` using `React.forward
 
 ---
 
-## Scene 17: Scene 2: Understanding Forward Refs (25s)
+## Scene 17: Understanding Forward Refs (25s)
 
 Forward refs in React are a pattern for passing a ref through a component to one of its children. Here, it's used to connect the `NavigationMenu` component to the DOM element rendered by `NavigationMenuPrimitive.Root`.
 
@@ -577,7 +577,7 @@ This line shows how the `ref` is passed down to the `NavigationMenuPrimitive.Roo
 
 ---
 
-## Scene 18: Scene 3: Styling with Class Variance Authority (30s)
+## Scene 18: Styling with Class Variance Authority (30s)
 
 The `cn` function and `cva` utility are used for styling components. They enable the composition of CSS class names based on certain conditions or variants.
 
@@ -596,7 +596,7 @@ The `cva` function is used here to define a base style for a menu trigger. It su
 
 ---
 
-## Scene 19: Scene 4: Creating Interactive Components (30s)
+## Scene 19: Creating Interactive Components (30s)
 
 The `NavigationMenuTrigger` component adds interactivity. It shows how icons and animations are integrated into the trigger.
 
@@ -628,7 +628,7 @@ This component includes a `ChevronDown` icon, which rotates based on the menu's 
 
 ---
 
-## Scene 20: Scene 5: Conclusion and Exports (20s)
+## Scene 20: Conclusion and Exports (20s)
 
 Finally, let's look at how components are exported for use in other parts of the application. This file exports multiple components related to the navigation menu.
 
@@ -862,7 +862,7 @@ src/vite-env.d.ts
 
 ---
 
-## Scene 26: Scene 1: Introduction to Toggle Component (20s)
+## Scene 26: Introduction to Toggle Component (20s)
 
 Let's dive into the `toggle.tsx` file which defines a customizable Toggle component using React and Radix UI's Toggle primitive. This component allows developers to easily integrate toggle buttons with various styles and sizes.
 
@@ -881,7 +881,7 @@ Here, we import React, Radix UI's Toggle primitive, and utilities from `class-va
 
 ---
 
-## Scene 27: Scene 2: Defining Toggle Variants (25s)
+## Scene 27: Defining Toggle Variants (25s)
 
 The next part of our code involves defining the different styling variants for our Toggle component using the `cva` function.
 
@@ -917,7 +917,7 @@ The `toggleVariants` function defines default styles and allows customization fo
 
 ---
 
-## Scene 28: Scene 3: Creating the Toggle Component (30s)
+## Scene 28: Creating the Toggle Component (30s)
 
 Now, let's see how we wrap these variants into a React component using `forwardRef`.
 
@@ -943,7 +943,7 @@ The `Toggle` component uses `forwardRef` for ref forwarding, and it applies the 
 
 ---
 
-## Scene 29: Scene 4: Exporting the Toggle Component (15s)
+## Scene 29: Exporting the Toggle Component (15s)
 
 Finally, the component and its variants are exported for use in other parts of the application.
 

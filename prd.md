@@ -6,7 +6,7 @@
 
 We're entering an era where AI is generating more code than humans. Developers are increasingly pasting in Copilot or ChatGPT-generated snippets without deeply understanding them. This is especially true in rapid prototyping or MVP work—where time trumps clarity.
 
-But the cost comes later: debugging code you don't understand, misusing libraries, or being unable to explain how things work to teammates or future maintainers. Reading code is cognitively taxing. Watching a quick narrated visual explanation, tailored to your skill level, reduces friction and makes understanding code feel more like watching a tutorial than doing a chore.
+But the cost comes later: debugging code you don't understand, misusing libraries, or being unable to explain how things work to teammates or future maintainers. Reading code is cognitively taxing. Watching a quick, bite-sized explanation, tailored to your skill level, reduces friction and makes understanding code feel more like a tutorial than doing a chore.
 
 This product is purpose-built for that moment—the early days of 'vibe coding'—where AI writes the code, and you just want to know what it actually *does*.
 
@@ -49,11 +49,10 @@ This product is purpose-built for that moment—the early days of 'vibe coding'�
 - ✅ Proficiency level selection
 - ✅ Depth selection: line-by-line, chunk, key-parts
 - ✅ Syntax highlighting (mobile and desktop)
-- ✅ Narrated video (text-to-speech)
-- ✅ Downloadable video file
-- ✅ Shareable video link
+- ✅ Bite-sized code explanations (text)
+- ✅ Downloadable/shareable text summary
 - ✅ Responsive layout (desktop + mobile)
-- ✅ Queue/Status page for video generation
+- ✅ Queue/Status page for explanation generation
 - ✅ Rate limiting to protect costs
 
 ---
@@ -99,59 +98,53 @@ This product is purpose-built for that moment—the early days of 'vibe coding'�
 - **Risk**: Requiring users to leave GitHub, VS Code, or their coding tool to visit a separate website to view their video might break flow and reduce usage.
 - **Mitigation**: Develop a browser extension or in-editor plugin (e.g., VS Code) to preview and access videos directly within GitHub or the IDE. Offer deep-link embeds or inline previews on PR comments.
 
-## 🎬 Video Design Principles
+## 📝 Explanation Design Principles
 
-### Scene Structure for Maximum Engagement
-To maximize impact, especially on mobile platforms like TikTok and Instagram Reels, our videos should be structured into **short, high-impact scenes**:
+### Structure for Maximum Engagement
+To maximize impact, especially on mobile platforms, our explanations should be structured into **short, high-impact sections**:
 
-#### ⏱ Scene Length Strategy
-- **Primary Scene Length**: 15–30 seconds
+#### ⏱ Section Length Strategy
+- **Primary Section Length**: 15–30 seconds to read
   - Ideal for maintaining attention
-  - Matches TikTok algorithm preferences
   - Enough time to cover one concept with context
-- **Micro-Scenes**: 3–7 seconds
+- **Micro-Sections**: 3–7 seconds
   - Zoom into individual lines or logic
   - Used for highlighting specific parts of the code
 
 #### 📱 Content Structure Examples
-- **Scene 1 (20s)**: *"What does this function do?"*
+- **Section 1 (20s)**: *"What does this function do?"*
   - 3s: Show function signature
   - 10s: Plain-English explanation
   - 7s: Input/output example
 
-- **Scene 2 (25s)**: *"The clever part"*
+- **Section 2 (25s)**: *"The clever part"*
   - 5s: Highlight key logic
   - 15s: Explain why it works
   - 5s: Analogy
 
-- **Scene 3 (15s)**: *"Watch out for this"*
+- **Section 3 (15s)**: *"Watch out for this"*
   - 5s: Show potential problem area
   - 10s: Explain edge case or mistake
 
 ### 🎯 Proficiency-Based Pacing
-- **Beginner**: 20–30s scenes, slow pace, lots of analogies (3–5 scenes per function)
-- **Intermediate**: 15–20s scenes, focus on "why", less scaffolding (2–3 scenes)
-- **Expert**: 10–15s scenes, dense and sharp insights (1–2 scenes, mostly edge cases)
+- **Beginner**: 20–30s sections, slow pace, lots of analogies (3–5 per function)
+- **Intermediate**: 15–20s sections, focus on "why", less scaffolding (2–3 per function)
+- **Expert**: 10–15s sections, dense and sharp insights (1–2 per function, mostly edge cases)
 
 ### 🧠 Cognitive Load Strategy
 - Follow the **7±2 Rule** of working memory
-- Stick to 1–2 concepts per scene
-- Use highlighting and animation to reduce visual overload
+- Stick to 1–2 concepts per section
+- Use highlighting and formatting to reduce visual overload
 
 #### 🌀 Spaced Reinforcement
-- Start each scene with a 2–3s recap
-- End with a teaser or leading thought for the next clip
+- Start each section with a 2–3s recap
+- End with a teaser or leading thought for the next bit
 
 ### 🖼️ Production & Prompting Implications
-- **Prompt Template**: Each scene prompt should:
+- **Prompt Template**: Each section prompt should:
   - Focus on one concept only
   - Include a code snippet to highlight visually
   - Include an analogy, example, or warning if appropriate
-
-- **Video Generator Rules**:
-  - Visuals should change every 3–5s
-  - Code lines zoom in or highlight with narration sync
-  - Voiceover should vary pacing, add emphasis, and include pauses
 
 ---
 

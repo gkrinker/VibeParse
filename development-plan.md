@@ -2,7 +2,7 @@
 
 ## 📋 Overview
 
-This document outlines the development milestones for building VibeParse, an AI-powered code explanation video generator. The plan is divided into two main phases:
+This document outlines the development milestones for building VibeParse, an AI-powered code explanation generator. The plan is divided into two main phases:
 1. Backend MVP (4-hour implementation)
 2. Frontend MVP (Post-backend completion)
 
@@ -43,13 +43,13 @@ curl -X POST http://localhost:8000/api/fetch-code \
   }'
 ```
 
-### Phase 2: Code Analysis & Script Generation (1.5 hours)
-**Goal**: Generate explanation scripts using LLM
+### Phase 2: Code Analysis & Explanation Generation (2.5 hours)
+**Goal**: Generate bite-sized code explanations using LLM
 
 **Deliverables**:
 - [ ] OpenAI/Claude integration
 - [ ] Basic prompt template system
-- [ ] Script generation endpoint
+- [ ] Explanation generation endpoint
 - [ ] Structured response format for explanations
 - [ ] Multi-file analysis and relationship mapping
 - [ ] File dependency detection
@@ -63,7 +63,7 @@ curl -X POST http://localhost:8000/api/fetch-code \
 
 **Example Usage**:
 ```bash
-curl -X POST http://localhost:8000/api/generate-script \
+curl -X POST http://localhost:8000/api/generate-explanation \
   -H "Content-Type: application/json" \
   -d '{
     "files": [
@@ -72,37 +72,6 @@ curl -X POST http://localhost:8000/api/generate-script \
     ],
     "proficiency": "beginner",
     "depth": "key-parts"
-  }'
-```
-
-### Phase 3: Video Generation (1.5 hours)
-**Goal**: Convert scripts into video content
-
-**Deliverables**:
-- [ ] Text-to-speech integration (ElevenLabs)
-- [ ] Basic video generation pipeline
-- [ ] Video storage and retrieval system
-- [ ] Status tracking for video generation
-- [ ] Multi-file visualization support
-- [ ] File transition effects
-
-**Testing Criteria**:
-- Successfully generates videos from scripts
-- Handles video generation asynchronously
-- Provides status updates for generation progress
-- Smooth transitions between multiple files
-- Clear file context indicators
-
-**Example Usage**:
-```bash
-curl -X POST http://localhost:8000/api/generate-video \
-  -H "Content-Type: application/json" \
-  -d '{
-    "script": "...",
-    "files": [
-      {"path": "src/main.py", "content": "..."},
-      {"path": "src/utils.py", "content": "..."}
-    ]
   }'
 ```
 
@@ -117,17 +86,9 @@ curl -X POST http://localhost:8000/api/generate-video \
 - [ ] GitHub URL input form
 - [ ] Proficiency and depth selection
 - [ ] Basic error handling and loading states
+- [ ] Display code snippets and explanations in a readable, bite-sized format
 
-### Phase 2: Video Integration (2 days)
-**Goal**: Connect frontend to video generation pipeline
-
-**Deliverables**:
-- [ ] Video player component
-- [ ] Generation status tracking
-- [ ] Download/share functionality
-- [ ] Progress indicators
-
-### Phase 3: Polish & UX (1 day)
+### Phase 2: Polish & UX (1 day)
 **Goal**: Improve user experience and add final touches
 
 **Deliverables**:
@@ -141,28 +102,25 @@ curl -X POST http://localhost:8000/api/generate-video \
 ### Backend Development
 1. Start with Phase 1 and ensure it's working end-to-end
 2. Move to Phase 2 only after Phase 1 is stable
-3. Implement Phase 3 with basic video generation first
-4. Add optimizations and improvements after basic functionality
+3. Add optimizations and improvements after basic functionality
 
 ### Frontend Development
 1. Begin after backend MVP is complete
 2. Start with basic form and API integration
-3. Add video player and status tracking
-4. Polish UI/UX last
+3. Polish UI/UX last
 
 ## 📊 Success Metrics
 
 ### Backend MVP
 - Response time < 2 seconds for single file retrieval
 - Response time < 5 seconds for directory retrieval
-- Script generation < 10 seconds for single file
-- Script generation < 30 seconds for directory
-- Video generation < 2 minutes
+- Explanation generation < 10 seconds for single file
+- Explanation generation < 30 seconds for directory
 - 99% uptime for core services
 
 ### Frontend MVP
 - Page load time < 2 seconds
-- Time to first video < 3 minutes
+- Time to first explanation < 1 minute
 - Mobile responsiveness score > 90
 - Error recovery rate > 95%
 
@@ -171,9 +129,8 @@ curl -X POST http://localhost:8000/api/generate-video \
 ### Backend
 - FastAPI (Python)
 - OpenAI/Claude API
-- ElevenLabs API
 - Redis (for job queue)
-- S3/Similar for video storage
+- S3/Similar for storage (if needed)
 
 ### Frontend
 - React
@@ -198,6 +155,6 @@ curl -X POST http://localhost:8000/api/generate-video \
    - Fallback options for failed generations 
 
 ## 🚦 Pre-Production Checklist (June 2024)
-- Enforce a hard cap on input size (max files, max lines, or max tokens) for script generation requests.
+- Enforce a hard cap on input size (max files, max lines, or max tokens) for explanation generation requests.
 - Implement per-file batching for LLM requests, keeping each batch under the token limit.
 - If a single file is too large, handle gracefully: skip the file, inform the user, and suggest splitting or reducing scope. 
