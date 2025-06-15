@@ -167,6 +167,9 @@ These features are not required for the initial launch but represent high-levera
 - **User History and Insights**: Show users a history of their analyzed files and track improvement over time.
 - **Smart Suggestions**: Recommend related repos or explanations based on previous usage.
 
+### 🔀 Non-MVP Feature: Commit Comparison
+- Allow users to compare the current commit with the last few commits. This feature would generate explanations highlighting what changed, why, and the impact of those changes. Useful for code reviews, understanding refactors, and tracking project evolution.
+
 ### 📝 Non-MVP Feature: Reading Mode for Scripts
 - Allow users to view the generated explanation script as formatted Markdown or HTML for reading.
 - This mode should provide clear section structure, code highlights, and explanations for users who prefer to read rather than watch a video.
