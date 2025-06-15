@@ -1,3 +1,5 @@
+# Video route removed as video generation is no longer supported.
+
 import re
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
