@@ -41,103 +41,149 @@ const ScenePlayer: React.FC<ScenePlayerProps> = ({
   const progress = ((currentSceneIndex + 1) / script.scenes.length) * 100;
 
   return (
-    <div className="flex flex-col h-screen bg-white">
+    <div className="min-h-screen bg-white text-neutral-900 font-inter">
       {/* Progress Bar */}
-      <div className="w-full h-2 bg-gray-300">
-        <div className="h-2 bg-blue-600 transition-all" style={{ width: `${progress}%` }} />
+      <div className="w-full h-1 bg-neutral-200">
+        <div className="h-1 bg-indigo-600 transition-all duration-300 ease-out" style={{ width: `${progress}%` }} />
       </div>
-      {/* Header (scene title/content) */}
-      <div className="bg-white shadow-sm p-4">
-        <h1 className="text-2xl font-bold text-gray-900">{scene.title}</h1>
-        <p className="text-gray-600 mt-2">{scene.content}</p>
-      </div>
-      {/* Main Content */}
-      {scene.code_highlights.length === 0 ? (
-        <div className="p-4">
-          <div className="text-gray-500 italic bg-gray-100 rounded-lg px-4 py-2 mt-8 mx-auto inline-block">
-            No code highlights for this scene.
+
+      {/* Main Content Container */}
+      <div className="max-w-6xl mx-auto px-6 py-8">
+        {/* Scene Header */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <span className="text-sm font-medium text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full">
+                Scene {currentSceneIndex + 1} of {script.scenes.length}
+              </span>
+            </div>
           </div>
+          <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-neutral-900 mb-4">
+            {scene.title}
+          </h1>
+          <p className="text-lg text-neutral-600 leading-relaxed max-w-4xl">
+            {scene.content}
+          </p>
         </div>
-      ) : (
-        <div className="overflow-auto p-4 bg-white">
-          {scene.code_highlights.map((highlight, index) => (
-            <div key={index} className="mb-8">
-              <h3 className="text-lg font-semibold mb-2">
-                {highlight.file_path} (lines {highlight.start_line}-{highlight.end_line})
-              </h3>
-              <div className="rounded-lg overflow-hidden shadow-sm bg-gray-900" style={{ marginBottom: 16 }}>
-                <CodeDisplay code={highlight.code} language="java" />
+
+        {/* Code Highlights */}
+        {scene.code_highlights.length === 0 ? (
+          <div className="bg-neutral-50 border border-neutral-200 rounded-2xl p-8 text-center">
+            <span className="text-2xl mb-4 block">📝</span>
+            <p className="text-neutral-500">No code highlights for this scene.</p>
+          </div>
+        ) : (
+          <div className="space-y-8">
+            {scene.code_highlights.map((highlight, index) => (
+              <div key={index} className="bg-white border border-neutral-200 rounded-2xl p-6 shadow-sm">
+                {/* File Header */}
+                <div className="flex items-center justify-between mb-4 pb-4 border-b border-neutral-100">
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm font-mono bg-neutral-100 px-2 py-1 rounded">
+                      {highlight.file_path}
+                    </span>
+                    <span className="text-xs text-neutral-500">
+                      lines {highlight.start_line}-{highlight.end_line}
+                    </span>
+                  </div>
+                  <button className="flex items-center gap-2 text-sm text-neutral-600 hover:text-neutral-900 transition bg-neutral-50 hover:bg-neutral-100 px-3 py-1.5 rounded-lg">
+                    <span className="text-xs">📋</span>
+                    Copy
+                  </button>
+                </div>
+
+                {/* Code Block */}
+                <div className="rounded-xl overflow-hidden mb-4" style={{ background: '#1e1e1e' }}>
+                  <CodeDisplay code={highlight.code} language="typescript" />
+                </div>
+
+                {/* Description */}
+                <div className="prose prose-neutral max-w-none">
+                  <p className="text-neutral-700 leading-relaxed">
+                    {highlight.description}
+                  </p>
+                </div>
               </div>
-              <p className="mt-4 text-gray-700 text-base">
-                {highlight.description}
-              </p>
-            </div>
-          ))}
-        </div>
-      )}
-      {/* Navigation & TOC */}
-      <div className="bg-white border-t p-4 flex justify-between items-center">
-        <button
-          onClick={onPrevious}
-          disabled={isFirst}
-          className={`px-4 py-2 rounded ${
-            isFirst
-              ? 'bg-gray-300 cursor-not-allowed'
-              : 'bg-blue-500 hover:bg-blue-600 text-white'
-          }`}
-        >
-          Previous
-        </button>
-        {/* TOC Dropdown */}
-        <div className="relative" ref={tocRef}>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Navigation Footer */}
+      <div className="sticky bottom-0 bg-white/80 backdrop-blur border-t border-neutral-200 mt-12">
+        <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
           <button
-            type="button"
-            tabIndex={0}
-            onClick={() => setTocOpen(!tocOpen)}
-            className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 focus:outline-none"
-            aria-haspopup="listbox"
-            aria-expanded={tocOpen}
+            onClick={onPrevious}
+            disabled={isFirst}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${
+              isFirst
+                ? 'bg-neutral-100 text-neutral-400 cursor-not-allowed'
+                : 'bg-neutral-50 text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900'
+            }`}
           >
-            Table of Contents
+            <span>←</span>
+            Prev
           </button>
-          {tocOpen && (
-            <div className="absolute left-1/2 bottom-full transform -translate-x-1/2 mb-2 w-72 max-h-80 overflow-auto bg-white border border-gray-300 rounded-lg shadow-xl z-50 p-2">
-              <div className="flex justify-end mb-2">
-                <button
-                  className="text-gray-500 hover:text-gray-800 text-sm px-2 py-1 rounded border border-gray-200 hover:bg-gray-100"
-                  onClick={() => setTocOpen(false)}
-                >
-                  Close
-                </button>
-              </div>
-              <ul>
-                {script.scenes.map((s, idx) => (
-                  <li
-                    key={idx}
-                    className={`px-4 py-2 cursor-pointer rounded transition-colors ${idx === currentSceneIndex ? 'bg-blue-50 font-bold' : 'hover:bg-blue-100'}`}
-                    onMouseDown={() => {
-                      setCurrentSceneIndex(idx);
-                      setTocOpen(false);
-                    }}
+
+          {/* TOC Dropdown */}
+          <div className="relative" ref={tocRef}>
+            <button
+              type="button"
+              onClick={() => setTocOpen(!tocOpen)}
+              className="flex items-center gap-2 px-4 py-2 bg-neutral-50 hover:bg-neutral-100 text-neutral-700 hover:text-neutral-900 rounded-lg text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+            >
+              <span>📋</span>
+              Contents
+            </button>
+            {tocOpen && (
+              <div className="absolute left-1/2 bottom-full transform -translate-x-1/2 mb-2 w-80 max-h-96 bg-white border border-neutral-200 rounded-2xl shadow-2xl z-50 overflow-hidden">
+                <div className="p-4 border-b border-neutral-100 flex items-center justify-between">
+                  <h3 className="font-medium text-neutral-900">Table of Contents</h3>
+                  <button
+                    className="text-neutral-500 hover:text-neutral-700 text-sm px-2 py-1 rounded-lg hover:bg-neutral-100 transition"
+                    onClick={() => setTocOpen(false)}
                   >
-                    {s.title}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
+                    ✕
+                  </button>
+                </div>
+                <div className="max-h-80 overflow-auto">
+                  {script.scenes.map((s, idx) => (
+                    <button
+                      key={idx}
+                      className={`w-full text-left px-4 py-3 hover:bg-neutral-50 transition border-b border-neutral-50 last:border-b-0 ${
+                        idx === currentSceneIndex ? 'bg-indigo-50 text-indigo-900 font-medium' : 'text-neutral-700'
+                      }`}
+                      onClick={() => {
+                        setCurrentSceneIndex(idx);
+                        setTocOpen(false);
+                      }}
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs bg-neutral-200 text-neutral-600 px-2 py-1 rounded-full min-w-[24px] text-center">
+                          {idx + 1}
+                        </span>
+                        <span className="text-sm truncate">{s.title}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <button
+            onClick={onNext}
+            disabled={isLast}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${
+              isLast
+                ? 'bg-neutral-100 text-neutral-400 cursor-not-allowed'
+                : 'bg-indigo-600 text-white hover:bg-indigo-500 active:bg-indigo-700'
+            }`}
+          >
+            Next
+            <span>→</span>
+          </button>
         </div>
-        <button
-          onClick={onNext}
-          disabled={isLast}
-          className={`px-4 py-2 rounded ${
-            isLast
-              ? 'bg-gray-300 cursor-not-allowed'
-              : 'bg-blue-500 hover:bg-blue-600 text-white'
-          }`}
-        >
-          Next
-        </button>
       </div>
     </div>
   );

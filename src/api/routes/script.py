@@ -31,11 +31,18 @@ SAMPLE_SCRIPT_PATH = PATHS['sample_script_path']
 def extract_code_blocks_from_content(content: str) -> list:
     code_block_pattern = re.compile(r'```([a-zA-Z0-9]*)[ \t]*\r?\n([\s\S]*?)```', re.MULTILINE)
     highlights = []
+    
+    # Try to extract file path from content (look for patterns like "The `src/App.css` file")
+    file_path = "scene-content"  # default
+    file_path_match = re.search(r'The `([^`]+)` file', content)
+    if file_path_match:
+        file_path = file_path_match.group(1)
+    
     for match in code_block_pattern.finditer(content):
         lang = match.group(1) or ""
         code = match.group(2).strip()
         highlights.append(CodeHighlight(
-            file_path="scene-content",
+            file_path=file_path,
             start_line=0,
             end_line=0,
             description="Inline code block from scene content",
@@ -63,7 +70,7 @@ def parse_sample_script_md(md_path: str) -> Script:
     scene_content = ""
 
     for line in lines:
-        if line.startswith("## ") and "Scene" in line:
+        if line.startswith("## ") and ("Scene" in line or "Chapter" in line):
             if current_scene:
                 current_scene["content"] = "".join(content_lines).strip()
                 content_highlights = extract_code_blocks_from_content(current_scene["content"])
@@ -76,11 +83,12 @@ def parse_sample_script_md(md_path: str) -> Script:
                 ))
                 current_highlights = []
                 content_lines = []
-            m = re.match(r"## Scene [0-9]+: (.*) \((\d+)s\)", line)
+            # Match both Scene and Chapter patterns
+            m = re.match(r"## (Scene|Chapter) [0-9]+: (.*) \((\d+)s\)", line)
             if m:
-                scene_title = m.group(1).strip()
-                scene_title = re.sub(r'^(Scene \d+: )+', '', scene_title)
-                scene_duration = int(m.group(2))
+                scene_title = m.group(2).strip()
+                scene_title = re.sub(r'^(Scene \d+: |Chapter \d+: )+', '', scene_title)
+                scene_duration = int(m.group(3))
                 current_scene = {"title": scene_title, "duration": scene_duration}
         elif line.strip() == "### Code Highlights":
             in_highlights = True
@@ -95,11 +103,23 @@ def parse_sample_script_md(md_path: str) -> Script:
                 ))
                 highlight_desc = ""
                 highlight_code = ""
-            m = re.match(r"\*\*(.+)\*\* \(lines (\d+)-(\d+)\):", line)
+            # Parse the line number format: **filename** (lines start-end):
+            m = re.match(r"\*\*(.+?)\*\* \(lines (\d+)-(\d+)\):", line)
             if m:
                 highlight_file = m.group(1).strip()
                 highlight_start = int(m.group(2))
                 highlight_end = int(m.group(3))
+            else:
+                # Try alternative pattern without colon
+                m2 = re.match(r"\*\*(.+?)\*\* \(lines (\d+)-(\d+)\)", line)
+                if m2:
+                    highlight_file = m2.group(1).strip()
+                    highlight_start = int(m2.group(2))
+                    highlight_end = int(m2.group(3))
+                else:
+                    highlight_file = None
+                    highlight_start = None
+                    highlight_end = None
         elif in_highlights and line.strip() == "```":
             code_block = not code_block
         elif in_highlights and code_block:
@@ -179,4 +199,4 @@ async def get_current_script():
         script = parse_sample_script_md(md_content)
         script_store[script_id] = script
         return script
-    return JSONResponse(status_code=404, content={"detail": "Script not found."}) 
+    return JSONResponse(status_code=404, content={"detail": "Script not found."})

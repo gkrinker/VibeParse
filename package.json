@@ -1,5 +1,6 @@
 {
   "dependencies": {
-    "react-syntax-highlighter": "^15.6.1"
+    "lucide-react": "^0.519.0",
+    "react-syntax-highlighter": "^5.8.0"
   }
 }

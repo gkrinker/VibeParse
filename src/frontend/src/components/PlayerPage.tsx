@@ -58,6 +58,15 @@ const PlayerPage: React.FC = () => {
     );
   }
 
+  // Add a check for scenes array
+  if (!script || !script.scenes || script.scenes.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-xl">Script loaded, but it has no scenes.</div>
+      </div>
+    );
+  }
+  
   const currentScene = script.scenes[currentSceneIndex];
   console.log('PlayerPage: currentScene', currentScene);
   console.log('PlayerPage: code_highlights', currentScene.code_highlights);

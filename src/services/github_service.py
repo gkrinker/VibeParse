@@ -4,6 +4,7 @@ from github.ContentFile import ContentFile
 from github.Repository import Repository
 import os
 from dotenv import load_dotenv
+import requests
 
 load_dotenv()
 
@@ -89,4 +90,15 @@ class GitHubService:
             # Directory
             return await self.get_directory_content(url, file_types)
         else:
-            raise Exception("Invalid GitHub URL: must contain /blob/ or /tree/") 
+            raise Exception("Invalid GitHub URL: must contain /blob/ or /tree/")
+
+    def get_repo_tree(self, url: str) -> List[str]:
+        """Fetch the full repo tree (all file paths) using the GitHub API."""
+        owner, repo, branch, _ = self._parse_github_url(url)
+        api_url = f"https://api.github.com/repos/{owner}/{repo}/git/trees/{branch}?recursive=1"
+        headers = {"Authorization": f"token {os.getenv('GITHUB_TOKEN')}"}
+        response = requests.get(api_url, headers=headers)
+        response.raise_for_status()
+        tree = response.json().get('tree', [])
+        file_paths = [item['path'] for item in tree if item['type'] == 'blob']
+        return file_paths 
