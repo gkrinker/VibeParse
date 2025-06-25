@@ -166,7 +166,17 @@ class ScriptWithID(BaseModel):
 
 @router.post("/generate-script", response_model=ScriptWithID)
 async def generate_script(request: ScriptRequest):
+    print(f"[API] /generate-script endpoint called")
+    print(f"[API] Request: URL={request.github_url}, Proficiency={request.proficiency}, Depth={request.depth}")
+    print(f"[API] File types: {request.file_types}, Save to disk: {request.save_to_disk}")
+    
+    # Check environment variables
+    USE_JSON_SCRIPT_PROMPT = os.environ.get("USE_JSON_SCRIPT_PROMPT", "false").lower() == "true"
+    MOCK_LLM_MODE = os.environ.get("MOCK_LLM_MODE", "false").lower() == "true"
+    print(f"[API] Environment: USE_JSON_SCRIPT_PROMPT={USE_JSON_SCRIPT_PROMPT}, MOCK_LLM_MODE={MOCK_LLM_MODE}")
+    
     try:
+        print("[API] Calling script_generator.generate_script_from_url...")
         script = await script_generator.generate_script_from_url(
             github_url=request.github_url,
             proficiency=request.proficiency,
@@ -174,10 +184,17 @@ async def generate_script(request: ScriptRequest):
             file_types=request.file_types,
             save_to_disk=request.save_to_disk
         )
+        print(f"[API] Script generation completed. Script has {len(script.scenes)} scenes")
+        
         script_id = str(uuid.uuid4())
         script_store[script_id] = script
-        return ScriptWithID(script_id=script_id, script=script)
+        print(f"[API] Stored script with ID: {script_id}")
+        
+        result = ScriptWithID(script_id=script_id, script=script)
+        print(f"[API] Returning response with script ID: {script_id}")
+        return result
     except Exception as e:
+        print(f"[API] Error during script generation: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/scripts/{script_id}", response_model=Script)

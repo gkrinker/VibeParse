@@ -97,12 +97,7 @@ const ScenePlayer: React.FC<ScenePlayerProps> = ({
                   <CodeDisplay code={highlight.code} language="typescript" />
                 </div>
 
-                {/* Description */}
-                <div className="prose prose-neutral max-w-none">
-                  <p className="text-neutral-700 leading-relaxed">
-                    {highlight.description}
-                  </p>
-                </div>
+                {/* Description removed as per new UX */}
               </div>
             ))}
           </div>

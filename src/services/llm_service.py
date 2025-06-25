@@ -4,7 +4,8 @@ from dotenv import load_dotenv
 from openai import AsyncOpenAI
 from ..models.script import Script, Scene, CodeHighlight
 import re
-import httpx
+import json
+from pathlib import Path
 
 # Load environment variables
 load_dotenv()
@@ -14,19 +15,7 @@ class LLMService:
         api_key = os.getenv("OPENAI_API_KEY")
         if not api_key:
             raise ValueError("OPENAI_API_KEY environment variable is not set")
-        
-        # Create a custom HTTP client with retries disabled to prevent double retries
-        # Our semaphore-controlled retry logic will handle all retries
-        http_client = httpx.AsyncClient(
-            timeout=httpx.Timeout(60.0),
-            limits=httpx.Limits(max_keepalive_connections=5, max_connections=10)
-        )
-        
-        self.client = AsyncOpenAI(
-            api_key=api_key,
-            http_client=http_client,
-            max_retries=0  # Disable OpenAI client's built-in retry logic
-        )
+        self.client = AsyncOpenAI(api_key=api_key)
         
     async def generate_script(
         self,
@@ -34,37 +23,150 @@ class LLMService:
         proficiency: str = "beginner",
         depth: str = "key-parts"
     ) -> Script:
-        """
-        Generate a script for explaining the provided code files.
+        print("[LLMService] generate_script called")
+        print(f"[LLMService] Processing {len(files)} files")
+        print(f"[LLMService] Proficiency: {proficiency}, Depth: {depth}")
         
-        Args:
-            files: List of dicts containing file paths and content
-            proficiency: User's proficiency level (beginner/intermediate/expert)
-            depth: Explanation depth (line-by-line/chunk/key-parts)
-            
-        Returns:
-            Script object containing scenes and code highlights
-        """
-        print(f"[LLM] Starting script generation for {len(files)} files (proficiency: {proficiency}, depth: {depth})...")
-        try:
-            prompt = self._construct_prompt(files, proficiency, depth)
-            response = await self.client.chat.completions.create(
-                model="gpt-4o",
-                messages=[
-                    {"role": "system", "content": self._get_system_prompt(proficiency)},
-                    {"role": "user", "content": prompt}
-                ],
-                temperature=0.7
-            )
-            print(f"[LLM] Script generation completed for {len(files)} files.")
-            return self._parse_response(response.choices[0].message.content, files)
-        except Exception as e:
-            print(f"[LLM] Error during script generation: {e}")
-            raise
+        USE_JSON_SCRIPT_PROMPT = os.environ.get("USE_JSON_SCRIPT_PROMPT", "false").lower() == "true"
+        print(f"[LLMService] USE_JSON_SCRIPT_PROMPT environment variable: {USE_JSON_SCRIPT_PROMPT}")
+        
+        if USE_JSON_SCRIPT_PROMPT:
+            print("[LLMService] Using NEW JSON script prompt and message structure.")
+            try:
+                with open("src/services/llm_system_prompt.txt", "r", encoding="utf-8") as f:
+                    system_prompt = f.read()
+                print(f"[LLMService] Loaded system prompt ({len(system_prompt)} characters)")
+                
+                messages = [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": f"Proficiency Level: {proficiency}\nExplanation Depth: {depth}"}
+                ]
+                print(f"[LLMService] Created initial messages: system + proficiency/depth")
+                
+                for i, file in enumerate(files):
+                    file_message = {
+                        "role": "user",
+                        "content": f"File: {file['path']}\nContent:\n{file['content']}"
+                    }
+                    messages.append(file_message)
+                    print(f"[LLMService] Added file {i+1}/{len(files)}: {file['path']} ({len(file['content'])} chars)")
+                
+                messages.append({
+                    "role": "user",
+                    "content": "Please generate the JSON script for all files above, following the guidelines and schema."
+                })
+                print(f"[LLMService] Added final instruction message. Total messages: {len(messages)}")
+                
+                print("[LLMService] Making LLM API call with JSON prompt...")
+                response = await self.client.chat.completions.create(
+                    model="gpt-4o",
+                    messages=messages,
+                    temperature=0.7
+                )
+                print("[LLMService] Received response from LLM")
+                
+                json_str = response.choices[0].message.content
+                print(f"[LLMService] Raw response length: {len(json_str)} characters")
+                print(f"[LLMService] Response preview: {json_str[:200]}...")
+                
+                # Clean the response - remove markdown code block markers if present
+                original_json_str = json_str
+                json_str = json_str.strip()
+                
+                # Handle various markdown code block formats
+                if json_str.startswith("```json"):
+                    # Remove opening ```json and any following newlines
+                    json_str = json_str[7:].lstrip()
+                    # Remove closing ``` and any preceding newlines
+                    if json_str.endswith("```"):
+                        json_str = json_str[:-3].rstrip()
+                    print(f"[LLMService] Cleaned JSON response (removed markdown markers)")
+                    print(f"[LLMService] Original length: {len(original_json_str)}, Cleaned length: {len(json_str)}")
+                elif json_str.startswith("```"):
+                    # Handle case where language isn't specified
+                    json_str = json_str[3:].lstrip()
+                    if json_str.endswith("```"):
+                        json_str = json_str[:-3].rstrip()
+                    print(f"[LLMService] Cleaned JSON response (removed generic markdown markers)")
+                    print(f"[LLMService] Original length: {len(original_json_str)}, Cleaned length: {len(json_str)}")
+                
+                # Save raw JSON response to file for inspection
+                output_dir = Path("test_output")
+                output_dir.mkdir(exist_ok=True)
+                
+                # Generate filename based on files being processed
+                file_names = [f['path'].replace('/', '_').replace('.', '_') for f in files]
+                json_filename = f"json_response_{'_'.join(file_names[:3])}.json"  # Limit to first 3 files
+                json_path = output_dir / json_filename
+                
+                with open(json_path, "w", encoding="utf-8") as f:
+                    f.write(json_str)
+                print(f"[LLMService] Saved raw JSON response to: {json_path}")
+                
+                try:
+                    data = json.loads(json_str)
+                    print("[LLMService] Successfully parsed JSON response")
+                except Exception as e:
+                    print(f"[LLMService] JSON parsing failed: {e}")
+                    raise RuntimeError(f"LLM did not return valid JSON: {e}\nRaw output:\n{json_str}")
+                
+                # Validate schema
+                print("[LLMService] Validating JSON schema...")
+                if not isinstance(data, dict) or "chapters" not in data or not isinstance(data["chapters"], list):
+                    print(f"[LLMService] Schema validation failed: missing 'chapters' array")
+                    raise RuntimeError(f"LLM JSON missing 'chapters' array. Raw output:\n{json_str}")
+                
+                print(f"[LLMService] Found {len(data['chapters'])} chapters")
+                for i, chapter in enumerate(data["chapters"]):
+                    if not all(k in chapter for k in ("title", "files", "scenes")):
+                        print(f"[LLMService] Chapter {i} missing required fields: {chapter}")
+                        raise RuntimeError(f"Chapter missing required fields: {chapter}")
+                    print(f"[LLMService] Chapter {i}: '{chapter.get('title')}' with {len(chapter.get('scenes', []))} scenes")
+                    
+                    for j, scene in enumerate(chapter["scenes"]):
+                        if not all(k in scene for k in ("title", "duration", "explanation", "code", "type_of_code")):
+                            print(f"[LLMService] Scene {j} in chapter {i} missing required fields: {scene}")
+                            raise RuntimeError(f"Scene missing required fields: {scene}")
+                        print(f"[LLMService] Scene {j}: '{scene.get('title')}' ({scene.get('duration')}s, {scene.get('type_of_code')})")
+                
+                print("[LLMService] JSON schema validation passed")
+                print(f"[LLMService] Returning JSON data with {len(data['chapters'])} chapters")
+                return data  # Return parsed and validated JSON
+                
+            except Exception as e:
+                print(f"[LLMService] Error in JSON path: {e}")
+                raise
+        else:
+            print("[LLMService] Using OLD Markdown script prompt and message structure.")
+            print(f"[M] Starting script generation for {len(files)} files (proficiency: {proficiency}, depth: {depth})...")
+            try:
+                prompt = self._construct_prompt(files, proficiency, depth)
+                print(f"[LLMService] Constructed Markdown prompt ({len(prompt)} characters)")
+                
+                response = await self.client.chat.completions.create(
+                    model="gpt-4o",
+                    messages=[
+                        {"role": "system", "content": self._get_system_prompt(proficiency)},
+                        {"role": "user", "content": prompt}
+                    ],
+                    temperature=0.7
+                )
+                print(f"[M] Script generation completed for {len(files)} files.")
+                
+                response_content = response.choices[0].message.content
+                print(f"[LLMService] Markdown response length: {len(response_content)} characters")
+                print(f"[LLMService] Response preview: {response_content[:200]}...")
+                
+                script = self._parse_response(response_content, files)
+                print(f"[LLMService] Parsed Markdown response into {len(script.scenes)} scenes")
+                return script
+            except Exception as e:
+                print(f"[M] Error during script generation: {e}")
+                raise
     
     def _construct_prompt(self, files: List[Dict[str, str]], proficiency: str, depth: str) -> str:
         """Construct the prompt for the LLM based on files and parameters."""
-        prompt = f"""Please analyze the following code and generate an explanation script.\nFor each scene, provide:\n- A title and duration\n- Exactly one code snippet (as a fenced code block, with language if possible)\n- Pair the code snippet with a detailed, plain-English explanation\n- The explanation should be detailed enough that reading or listening to it would take between 15 and 30 seconds\n- Do not mention or reference the word 'scene' or any script structure (e.g., 'In this scene', 'The next scene', etc.) in your explanations. Write as if you are naturally explaining the code to a learner.\n- When referring to code entities (variables, functions, classes, etc.) in your explanation, always wrap them in single backticks (e.g., `QueryClient`). Use triple backticks only for multi-line code blocks.\nIf a scene is only context/transition, you may omit the code snippet.\n\nFormat example:\n\n## Scene Title (duration in seconds)\nExplanation here.\n\n### Code Highlights\n**App.tsx** (lines 2-10):\n```tsx\n// code from lines 2-10 here\n```\nExplanation of the code above.\n\n---\n\nNow, analyze these files:\n"""
+        prompt = f"""Please analyze the following code and generate an explanation script.\nFor each scene, provide:\n- A title and duration\n- Exactly one code snippet (as a fenced code block, with language if possible)\n- Pair the code snippet with a detailed, plain-English explanation\n- The explanation should be detailed enough that reading or listening to it would take between 15 and 30 seconds\n- Do not mention or reference the word 'scene' or any script structure (e.g., 'In this scene', 'The next scene', etc.) in your explanations. Write as if you are naturally explaining the code to a learner.\nIf a scene is only context/transition, you may omit the code snippet.\n\nFormat example:\n\n## Scene Title (duration in seconds)\nExplanation here.\n\n### Code Highlights\n**App.tsx** (lines 2-10):\n```tsx\n// code from lines 2-10 here\n```\nExplanation of the code above.\n\n---\n\nNow, analyze these files:\n"""
         prompt += f"\nProficiency Level: {proficiency}\n"
         prompt += f"Depth: {depth}\n\n"
         for file in files:
@@ -74,7 +176,7 @@ class LLMService:
     
     def _get_system_prompt(self, proficiency: str) -> str:
         """Get the system prompt based on proficiency level."""
-        base_prompt = """You are an expert code explainer. Your task is to generate a script for explaining code.\n        Follow these guidelines:\n        1. Break down the explanation into scenes (15-30 seconds each)\n        2. Each scene should focus on 1-2 concepts\n        3. Each scene must include exactly one code snippet, paired with a detailed explanation\n        4. The explanation for each code snippet should be detailed enough to take 15-30 seconds to consume\n        5. Do not mention or reference the word 'scene' or any script structure (e.g., 'In this scene', 'The next scene', etc.) in your explanations. Write as if you are naturally explaining the code to a learner.\n        6. Use analogies and examples where appropriate\n        7. Format the output in Markdown\n        8. Each scene must have a title and duration\n        9. Each code highlight must specify the file path and line numbers\n        10. When referring to code entities (variables, functions, classes, etc.) in your explanation, always wrap them in single backticks (e.g., `QueryClient`). Use triple backticks only for multi-line code blocks.\n        """
+        base_prompt = """You are an expert code explainer. Your task is to generate a script for explaining code.\n        Follow these guidelines:\n        1. Break down the explanation into scenes (15-30 seconds each)\n        2. Each scene should focus on 1-2 concepts\n        3. Each scene must include exactly one code snippet, paired with a detailed explanation\n        4. The explanation for each code snippet should be detailed enough to take 15-30 seconds to consume\n        5. Do not mention or reference the word 'scene' or any script structure (e.g., 'In this scene', 'The next scene', etc.) in your explanations. Write as if you are naturally explaining the code to a learner.\n        6. Use analogies and examples where appropriate\n        7. Format the output in Markdown\n        8. Each scene must have a title and duration\n        9. Each code highlight must specify the file path and line numbers\n        """
         
         proficiency_prompts = {
             "beginner": "Focus on basic concepts, use simple analogies, and explain everything step by step. Aim for 3-5 scenes per function.",
@@ -84,27 +186,6 @@ class LLMService:
         
         return f"{base_prompt}\n{proficiency_prompts.get(proficiency, proficiency_prompts['intermediate'])}"
     
-    def _postprocess_code_references(self, text: str, known_entities: Optional[List[str]] = None) -> str:
-        """
-        Post-process explanation text to format code references:
-        - Convert single/double-quoted code references to backticks
-        - Fix triple backticks used inline (convert to single backticks)
-        - Optionally, wrap known code entities in backticks if not already formatted
-        """
-        import re
-        # Replace triple backticks used inline (not as code blocks) with single backticks
-        text = re.sub(r"```([\w-]+)```", r"`\1`", text)
-        # Replace 'word' or "word" with `word` (only for likely code entities)
-        text = re.sub(r"([\s\(\[\{\,\:\;])'([A-Za-z_][A-Za-z0-9_]*)'([\s\)\]\}\,\:\;\.])", r"\1`\2`\3", text)
-        text = re.sub(r'([\s\(\[\{\,\:\;])"([A-Za-z_][A-Za-z0-9_]*)"([\s\)\]\}\,\:\;\.])', r'\1`\2`\3', text)
-        # Optionally, wrap known code entities in backticks if not already formatted
-        if known_entities:
-            for entity in known_entities:
-                # Only wrap if not already inside backticks
-                pattern = rf'(?<![`\w])({re.escape(entity)})(?![`\w])'
-                text = re.sub(pattern, r'`\1`', text)
-        return text
-
     def _parse_response(self, response: str, files: List[Dict[str, str]]) -> Script:
         """Parse the LLM response into a Script object."""
         scenes = []
@@ -112,13 +193,6 @@ class LLMService:
         code_highlight_pattern = re.compile(r"\*\*(.+?)\*\* \(lines (\d+)[-–](\d+)\):?")
         code_block_pattern = re.compile(r"```[a-zA-Z]*\n([\s\S]*?)```", re.MULTILINE)
         file_content_map = {f['path']: f['content'].splitlines() for f in files}
-        # Optionally, collect known code entities from file contents (simple heuristic: all words after 'def', 'class', or function names)
-        known_entities = set()
-        for f in files:
-            for line in f['content'].splitlines():
-                match = re.match(r'\s*(def|class)\s+([A-Za-z_][A-Za-z0-9_]*)', line)
-                if match:
-                    known_entities.add(match.group(2))
         lines = response.split('\n')
         i = 0
         while i < len(lines):
@@ -126,13 +200,6 @@ class LLMService:
             # New scene
             if line.startswith('## '):
                 if current_scene:
-                    # Post-process scene content
-                    print('[POSTPROCESS] Running post-processing on scene content...')
-                    current_scene.content = self._postprocess_code_references(current_scene.content, list(known_entities))
-                    # Post-process code highlight descriptions
-                    for ch in current_scene.code_highlights:
-                        print(f'[POSTPROCESS] Running post-processing on code highlight description for file: {ch.file_path}')
-                        ch.description = self._postprocess_code_references(ch.description, list(known_entities))
                     scenes.append(current_scene)
                 title_duration = line[3:].split('(')
                 title = title_duration[0].strip()
@@ -194,8 +261,6 @@ class LLMService:
                         desc_lines.append(desc_line)
                         j += 1
                     description = '\n'.join(desc_lines)
-                    print('[DEBUG] Parsed code block:', code)
-                    print('[DEBUG] Parsed description:', description)
                     highlight = CodeHighlight(
                         file_path=file_path,
                         start_line=start_line,

@@ -60,8 +60,13 @@ class ScriptGenerator:
         logger.info(f"File types: {file_types}")
         logger.info(f"Save to disk: {save_to_disk}")
         
+        # Check JSON vs Markdown mode
+        USE_JSON_SCRIPT_PROMPT = os.environ.get("USE_JSON_SCRIPT_PROMPT", "false").lower() == "true"
+        logger.info(f"[ScriptGenerator] USE_JSON_SCRIPT_PROMPT: {USE_JSON_SCRIPT_PROMPT}")
+        
         # Fetch code from GitHub
         files = await self.github_service.fetch_code(github_url, file_types)
+        logger.info(f"[ScriptGenerator] Fetched {len(files)} files from GitHub")
         
         # Tokenizer for estimation
         enc = tiktoken.encoding_for_model("gpt-4")
@@ -89,6 +94,9 @@ class ScriptGenerator:
         if current_batch:
             logger.info(f"Created batch with {len(current_batch)} files, total tokens: {current_tokens}.")
             batches.append(current_batch)
+        
+        logger.info(f"[ScriptGenerator] Created {len(batches)} batches for processing")
+        
         # Process each batch using a single chat history
         all_scenes = []
         global_scene_idx = 1
@@ -107,34 +115,56 @@ class ScriptGenerator:
             )
             all_scenes.append(chapter_scene)
             logger.info(f"[Batching] Processing chapter {idx+1}/{len(batches)} with {len(batch)} files...")
-            # Construct batch prompt
-            prompt = self.llm_service._construct_prompt(batch, proficiency, depth)
-            messages.append({"role": "user", "content": prompt})
-            try:
-                async def llm_batch_call():
-                    return await self.llm_service.client.chat.completions.create(
-                        model="gpt-4o",
-                        messages=messages,
-                        temperature=0.7
-                    )
-                response = await call_llm_with_retries(llm_batch_call)
-                batch_response = response.choices[0].message.content
-                messages.append({"role": "assistant", "content": batch_response})
-                script = self.llm_service._parse_response(batch_response, batch)
-                logger.info(f"[Batching] Chapter {idx+1} processed successfully. Scenes added: {len(script.scenes)}.")
+            
+            # Check if we should use the new JSON path
+            if USE_JSON_SCRIPT_PROMPT:
+                logger.info(f"[ScriptGenerator] Using NEW JSON path for batch {idx+1}")
+                try:
+                    # Use the new LLMService.generate_script method
+                    script = await self.llm_service.generate_script(batch, proficiency, depth)
+                    logger.info(f"[ScriptGenerator] JSON path returned: {type(script)}")
+                    if isinstance(script, dict):
+                        logger.info(f"[ScriptGenerator] JSON response has {len(script.get('chapters', []))} chapters")
+                        # Use the new from_json_response method
+                        from ..models.script import Script
+                        script = Script.from_json_response(script)
+                        logger.info(f"[ScriptGenerator] Converted JSON to Script with {len(script.scenes)} scenes")
+                    else:
+                        logger.info(f"[ScriptGenerator] JSON path returned Script object with {len(script.scenes)} scenes")
+                    
+                    # Number scenes globally
+                    for scene in script.scenes:
+                        if not re.match(r'^Scene \d+:', scene.title):
+                            scene.title = f"Scene {global_scene_idx}: {scene.title}"
+                        global_scene_idx += 1
+                        all_scenes.append(scene)
+                except Exception as e:
+                    logger.error(f"[ScriptGenerator] Error in JSON path for batch {idx+1}: {e}")
+                    # Fall back to old path
+                    logger.info(f"[ScriptGenerator] Falling back to old Markdown path for batch {idx+1}")
+                    script = await self._process_batch_old_way(batch, proficiency, depth, messages, idx)
+                    # Number scenes globally
+                    for scene in script.scenes:
+                        if not re.match(r'^Scene \d+:', scene.title):
+                            scene.title = f"Scene {global_scene_idx}: {scene.title}"
+                        global_scene_idx += 1
+                        all_scenes.append(scene)
+            else:
+                logger.info(f"[ScriptGenerator] Using OLD Markdown path for batch {idx+1}")
+                script = await self._process_batch_old_way(batch, proficiency, depth, messages, idx)
                 # Number scenes globally
                 for scene in script.scenes:
                     if not re.match(r'^Scene \d+:', scene.title):
                         scene.title = f"Scene {global_scene_idx}: {scene.title}"
                     global_scene_idx += 1
                     all_scenes.append(scene)
-                if idx < len(batches) - 1:
-                    logger.info("[Throttling] Sleeping 5 seconds before next batch to avoid rate limits...")
-                    await asyncio.sleep(5)
-            except Exception as e:
-                logger.error(f"[Batching] Error processing chapter {idx+1}: {e}. Skipping chapter.")
-                skipped_files.extend([f['path'] for f in batch])
-                continue
+            
+            logger.info(f"[Batching] Chapter {idx+1} processed successfully. Scenes added: {len(script.scenes)}.")
+            
+            if idx < len(batches) - 1:
+                logger.info("[Throttling] Sleeping 5 seconds before next batch to avoid rate limits...")
+                await asyncio.sleep(5)
+        
         # Add a scene at the start if any files were skipped
         if skipped_files:
             from ..models.script import Scene
@@ -145,7 +175,10 @@ class ScriptGenerator:
                 code_highlights=[]
             )
             all_scenes.insert(0, skip_scene)
+        
         final_script = Script(scenes=all_scenes)
+        logger.info(f"[ScriptGenerator] Final script has {len(final_script.scenes)} scenes total")
+        
         # Modular multi-scene intro chapter for directory submissions
         ENABLE_INTRO_CHAPTER = os.environ.get("ENABLE_INTRO_CHAPTER", "false").lower() == "true"
         is_directory = len(files) > 1
@@ -234,10 +267,38 @@ Format your answer as a list of scenes, each with a title, duration, and content
                 logger.error(f"[IntroChapter] Error generating intro chapter: {e}. Skipping intro chapter.")
         else:
             logger.info(f"[IntroChapter] DISABLED or not a directory (ENABLE_INTRO_CHAPTER={ENABLE_INTRO_CHAPTER}, is_directory={is_directory})")
+        
         # Save to disk if requested
         if save_to_disk:
             self._save_script(final_script, github_url)
+        
+        logger.info(f"[ScriptGenerator] Script generation completed. Returning script with {len(final_script.scenes)} scenes")
         return final_script
+
+    async def _process_batch_old_way(self, batch, proficiency, depth, messages, idx):
+        """Process a batch using the old Markdown-based approach."""
+        logger.info(f"[ScriptGenerator] Processing batch {idx+1} using old Markdown approach")
+        # Construct batch prompt
+        prompt = self.llm_service._construct_prompt(batch, proficiency, depth)
+        messages.append({"role": "user", "content": prompt})
+        try:
+            async def llm_batch_call():
+                return await self.llm_service.client.chat.completions.create(
+                    model="gpt-4o",
+                    messages=messages,
+                    temperature=0.7
+                )
+            response = await call_llm_with_retries(llm_batch_call)
+            batch_response = response.choices[0].message.content
+            messages.append({"role": "assistant", "content": batch_response})
+            script = self.llm_service._parse_response(batch_response, batch)
+            logger.info(f"[ScriptGenerator] Old Markdown approach returned {len(script.scenes)} scenes")
+            return script
+        except Exception as e:
+            logger.error(f"[Batching] Error processing chapter {idx+1}: {e}. Skipping chapter.")
+            # Return empty script
+            from ..models.script import Script
+            return Script(scenes=[])
     
     async def _generate_mock_script(self, github_url: str, save_to_disk: bool = True) -> Script:
         """
@@ -253,17 +314,24 @@ Format your answer as a list of scenes, each with a title, duration, and content
         """
         # Handle empty or default URLs in mock mode
         if not github_url or github_url == 'mock-repo':
-            github_url = 'mock-repository'
-            logger.info("[MockLLM] Using default repository name for mock mode")
+            github_url = 'mock-repo'
         
-        logger.info(f"[MockLLM] Loading existing script from test_output/src_script.md for URL: {github_url}")
+        logger.info(f"[MockLLM] Generating mock script for URL: {github_url}")
         
-        # Path to the existing script file
-        script_path = Path("test_output/src_script.md")
+        # Determine which script file to load based on the URL
+        script_path = "test_output/src_script.md"  # default
         
-        if not script_path.exists():
-            logger.error("[MockLLM] src_script.md not found in test_output directory")
-            raise FileNotFoundError("src_script.md not found in test_output directory. Please ensure the file exists for mock mode.")
+        # Try to find a more specific script file based on the URL
+        if "App.tsx" in github_url:
+            script_path = "test_output/App.tsx_script.md"
+        elif "setcharacters.js" in github_url:
+            script_path = "test_output/setcharacters.js_script.md"
+        elif "MyActivity.java" in github_url:
+            script_path = "test_output/MyActivity.java_script.md"
+        elif "ExpertSingleFileTest" in github_url:
+            script_path = "test_output/ExpertSingleFileTest.md"
+        
+        logger.info(f"[MockLLM] Loading script from: {script_path}")
         
         try:
             # Read the existing script file
@@ -272,28 +340,16 @@ Format your answer as a list of scenes, each with a title, duration, and content
             
             logger.info(f"[MockLLM] Successfully loaded script file ({len(script_content)} characters)")
             
-            # Parse the markdown content into a Script object
-            # We'll use the existing parsing logic from the script route
-            from ..api.routes.script import parse_sample_script_md
+            # Parse the markdown content into a Script object using the LLMService parser
+            # Create a dummy files list for parsing
+            dummy_files = [{"path": "mock_file.md", "content": script_content}]
+            script = self.llm_service._parse_response(script_content, dummy_files)
+            logger.info(f"[MockLLM] Successfully parsed script with {len(script.scenes)} scenes")
+            logger.info("[MockLLM] Scene titles:")
+            for scene in script.scenes:
+                logger.info(f"  - {scene.title}")
             
-            # Create a temporary file to use the existing parser
-            import tempfile
-            with tempfile.NamedTemporaryFile(mode='w', suffix='.md', delete=False) as temp_file:
-                temp_file.write(script_content)
-                temp_file_path = temp_file.name
-            
-            try:
-                script = parse_sample_script_md(temp_file_path)
-                logger.info(f"[MockLLM] Successfully parsed script with {len(script.scenes)} scenes")
-                logger.info("[MockLLM] Scene titles:")
-                for scene in script.scenes:
-                    logger.info(f"  - {scene.title}")
-                
-                return script
-            finally:
-                # Clean up temporary file
-                import os
-                os.unlink(temp_file_path)
+            return script
                 
         except Exception as e:
             logger.error(f"[MockLLM] Error loading or parsing script: {e}")
