@@ -185,9 +185,9 @@ const IndexPage: React.FC = () => {
               role="tab"
               aria-selected={activeTab === 'file'}
               onClick={() => setActiveTab('file')}
-              className={`relative px-5 py-3 text-sm font-medium flex items-center gap-2 rounded-t-lg border-t border-l border-r focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 transition ${
+              className={`relative px-3 sm:px-5 py-2 sm:py-3 text-xs sm:text-sm font-medium flex items-center gap-2 rounded-t-lg border-t border-l border-r focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 transition whitespace-nowrap z-20 ${
                 activeTab === 'file'
-                  ? 'border-neutral-200 bg-white/60 backdrop-blur-lg text-neutral-900 z-20 -mb-px'
+                  ? 'border-neutral-200 bg-white text-neutral-900 -mb-px'
                   : 'border-neutral-300 bg-neutral-100 text-neutral-500 hover:text-neutral-700 hover:bg-neutral-50 hover:border-neutral-400 mb-0'
               }`}
             >
@@ -200,19 +200,20 @@ const IndexPage: React.FC = () => {
               onClick={() => {
                 setShowComingSoonDialog(true);
               }}
-              className={`relative px-5 py-3 text-sm font-medium flex items-center gap-2 rounded-t-lg border-t border-l border-r focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 transition ${
+              className={`relative px-3 sm:px-5 py-2 sm:py-3 text-xs sm:text-sm font-medium flex items-center gap-2 rounded-t-lg border-t border-l border-r focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 transition whitespace-nowrap z-10 ${
                 activeTab === 'changes'
-                  ? 'border-neutral-200 bg-white/60 backdrop-blur-lg text-neutral-900 z-20 -mb-px'
-                  : 'border-neutral-300 bg-neutral-100 text-neutral-500 hover:text-neutral-700 hover:bg-neutral-50 hover:border-neutral-400 mb-0'
+                  ? 'border-neutral-200 bg-white text-neutral-900 -mb-px'
+                  : 'border-neutral-300 bg-neutral-100 text-neutral-500 hover:text-neutral-700 hover:bg-neutral-50 hover:border-neutral-400 mb-0 border-b-0'
               }`}
             >
               <span className="w-4 h-4">🔄</span>
-              Explain&nbsp;Recent&nbsp;Changes
+              <span className="hidden sm:inline">Explain&nbsp;Recent&nbsp;Changes</span>
+              <span className="sm:hidden">Explain&nbsp;Changes</span>
             </button>
           </div>
 
           {/* Main Container */}
-          <div className="bg-white/60 backdrop-blur-lg border border-neutral-200 rounded-2xl rounded-tl-none shadow-lg p-8 sm:p-10 space-y-6">
+          <div className="bg-white/60 backdrop-blur-lg border border-neutral-200 border-t border-neutral-200 rounded-2xl rounded-tl-none shadow-lg p-8 sm:p-10 space-y-6">
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
