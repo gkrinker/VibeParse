@@ -24,46 +24,20 @@ class Script(BaseModel):
     def from_json_response(cls, json_data: Dict[str, Any]) -> "Script":
         """
         Create a Script from the new JSON response format.
-        Transforms chapters/scenes structure to flat scenes array.
+        Flattens all LLM-provided scenes from all chapters, with no extra chapter header scenes.
         """
         scenes = []
-        
-        # Add chapter header scene if there are multiple chapters
-        if len(json_data.get("chapters", [])) > 1:
-            chapter_titles = [chapter.get("title", "") for chapter in json_data.get("chapters", [])]
-            scenes.append(Scene(
-                title="Files in this chapter",
-                duration=5,
-                content=f"This chapter covers the following files:\n" + "\n".join(chapter_titles),
-                code_highlights=[]
-            ))
-        
-        # Process each chapter
         for chapter in json_data.get("chapters", []):
-            chapter_title = chapter.get("title", "")
             chapter_files = chapter.get("files", [])
-            
-            # Add chapter header scene
-            if len(json_data.get("chapters", [])) > 1:
-                scenes.append(Scene(
-                    title=f"Chapter: {chapter_title}",
-                    duration=5,
-                    content=f"This chapter covers the following files:\n" + "\n".join(chapter_files),
-                    code_highlights=[]
-                ))
-            
-            # Process scenes in this chapter
             for scene_data in chapter.get("scenes", []):
-                # Create code highlight from scene data
+                file_path = scene_data.get("file_path") or (chapter_files[0] if chapter_files else "unknown")
                 code_highlight = CodeHighlight(
-                    file_path=chapter_files[0] if chapter_files else "unknown",
+                    file_path=file_path,
                     start_line=1,
                     end_line=1,
                     description=scene_data.get("explanation", ""),
                     code=scene_data.get("code", "")
                 )
-                
-                # Create scene
                 scene = Scene(
                     title=scene_data.get("title", ""),
                     duration=scene_data.get("duration", 20),
@@ -71,7 +45,6 @@ class Script(BaseModel):
                     code_highlights=[code_highlight] if scene_data.get("code") else []
                 )
                 scenes.append(scene)
-        
         return cls(scenes=scenes)
     
     def to_markdown(self) -> str:

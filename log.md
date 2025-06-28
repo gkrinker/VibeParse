@@ -617,3 +617,18 @@ curl -X POST "http://localhost:8080/api/generate-script" \
 ---
 
 ## Edit #5: JSON Parsing Bug Fix and End-to-End Testing (2024-12-19)
+
+#30 - Fix redundant chapter/scene flattening and titles (2024-06-25)
+- Refactored Script.from_json_response to:
+  - Add a single, non-numbered chapter header (with chapter title and files covered) for each chapter.
+  - No longer add any global or per-chapter "Files in this chapter" scenes or redundant scenes.
+  - No longer double-prefix scene or chapter titles; LLM-provided titles are used as-is.
+  - All LLM-provided scenes are added as-is after the chapter header.
+  - Code highlight file_path uses scene's file_path if present, else falls back to chapter's first file.
+- Result: Output now matches LLM JSON intent, with clean chapter headers and no duplicate or awkward scenes/titles.
+
+#31 - Remove backend-added chapter header scenes; output only LLM-provided scenes (2024-06-25)
+- Updated Script.from_json_response to no longer add any chapter header or extra scenes.
+- Now, only the scenes provided by the LLM JSON are output, in order, with no backend-added headers or dividers.
+- This eliminates all redundant chapter scenes in both the API and Markdown output.
+- Output now matches the LLM JSON exactly.
