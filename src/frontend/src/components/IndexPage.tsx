@@ -14,9 +14,10 @@ interface DropdownProps {
   onChange: (value: string) => void;
   icon: string;
   placeholder?: string;
+  dropdownClassName?: string;
 }
 
-const Dropdown: React.FC<DropdownProps> = ({ value, options, onChange, icon, placeholder }) => {
+const Dropdown: React.FC<DropdownProps> = ({ value, options, onChange, icon, placeholder, dropdownClassName }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -32,11 +33,11 @@ const Dropdown: React.FC<DropdownProps> = ({ value, options, onChange, icon, pla
   }, []);
 
   return (
-    <div className="relative flex-1" ref={dropdownRef}>
+    <div className="relative" ref={dropdownRef}>
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between px-4 py-3 bg-neutral-50 hover:bg-neutral-100 rounded-lg text-sm font-medium gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+        className="flex items-center justify-between px-4 py-3 bg-neutral-50 hover:bg-neutral-100 rounded-lg text-sm font-medium gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 min-w-[7rem] whitespace-nowrap"
       >
         <div className="flex items-center gap-2">
           <span className="w-4 h-4 text-neutral-500">{icon}</span>
@@ -45,7 +46,7 @@ const Dropdown: React.FC<DropdownProps> = ({ value, options, onChange, icon, pla
         <span className="w-4 h-4">▼</span>
       </button>
       {isOpen && (
-        <div className="absolute z-20 mt-2 w-full bg-white border border-neutral-200 rounded-lg shadow">
+        <div className="absolute z-20 mt-2 bg-white border border-neutral-200 rounded-lg shadow min-w-full">
           {options.map((option, index) => (
             <button
               key={option}
@@ -54,7 +55,7 @@ const Dropdown: React.FC<DropdownProps> = ({ value, options, onChange, icon, pla
                 onChange(option);
                 setIsOpen(false);
               }}
-              className={`w-full text-left px-4 py-2 text-sm hover:bg-neutral-100 ${
+              className={`text-left px-4 py-2 text-sm hover:bg-neutral-100 w-full ${
                 index === 0 ? 'rounded-t-lg' : index === options.length - 1 ? 'rounded-b-lg' : ''
               }`}
             >
@@ -164,12 +165,12 @@ const IndexPage: React.FC = () => {
 
 
       {/* HERO */}
-      <section className="relative isolate pb-12">
+      <section className="relative isolate pb-4 sm:pb-12">
         <div className="pointer-events-none absolute inset-0 -z-10">
           <div className="absolute inset-x-0 top-[-30%] h-[100vh] bg-gradient-to-b from-indigo-100 via-white to-white"></div>
         </div>
 
-        <div className="max-w-4xl mx-auto px-4 sm:pt-24 pt-20 w-full max-w-full overflow-x-hidden">
+        <div className="max-w-4xl mx-auto px-4 sm:pt-24 pt-20 w-full max-w-full">
           <h1 className="text-center w-full whitespace-nowrap text-[clamp(1.25rem,8vw,2.5rem)] font-semibold tracking-tight mb-6">
             Understand&nbsp;
             <span className="font-mono text-indigo-600 whitespace-nowrap">&lt;Code&gt;</span>
@@ -180,109 +181,115 @@ const IndexPage: React.FC = () => {
           </p>
 
           {/* Tab Navigation */}
-          <div className="flex gap-1 relative z-10" role="tablist">
-            <button
-              role="tab"
-              aria-selected={activeTab === 'file'}
-              onClick={() => setActiveTab('file')}
-              className={`relative px-3 sm:px-5 py-2 sm:py-3 text-xs sm:text-sm font-medium flex items-center gap-2 rounded-t-lg border-t border-l border-r focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 transition whitespace-nowrap z-20 ${
-                activeTab === 'file'
-                  ? 'border-neutral-200 bg-white text-neutral-900 -mb-px'
-                  : 'border-neutral-300 bg-neutral-100 text-neutral-500 hover:text-neutral-700 hover:bg-neutral-50 hover:border-neutral-400 mb-0'
-              }`}
-            >
-              <span className="w-4 h-4">📁</span>
-              Explain&nbsp;File/Directory
-            </button>
-            <button
-              role="tab"
-              aria-selected={activeTab === 'changes'}
-              onClick={() => {
-                setShowComingSoonDialog(true);
-              }}
-              className={`relative px-3 sm:px-5 py-2 sm:py-3 text-xs sm:text-sm font-medium flex items-center gap-2 rounded-t-lg border-t border-l border-r focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 transition whitespace-nowrap z-10 ${
+          <div className="max-w-2xl mx-auto">
+            <div className="flex gap-1 relative z-10 items-start" role="tablist">
+              <button
+                role="tab"
+                aria-selected={activeTab === 'file'}
+                onClick={() => setActiveTab('file')}
+                className={`flex-none relative px-3 sm:px-5 py-2 sm:py-3 text-xs sm:text-sm font-medium flex items-center gap-2 rounded-t-lg border-t border-l border-r focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 transition whitespace-nowrap z-20 ${
+                  activeTab === 'file'
+                    ? 'border-neutral-200 bg-white text-neutral-900 -mb-1 border-b-2 border-b-white'
+                    : 'border-neutral-300 bg-neutral-100 text-neutral-500 hover:text-neutral-700 hover:bg-neutral-50 hover:border-neutral-400 mb-0 border-b-0'
+                }`}
+              >
+                <span className="w-4 h-4">📁</span>
+                Explain&nbsp;File/Directory
+              </button>
+              <button
+                role="tab"
+                aria-selected={activeTab === 'changes'}
+                onClick={() => {
+                  setShowComingSoonDialog(true);
+                }}
+                className={`flex-none relative px-3 sm:px-5 py-2 sm:py-3 text-xs sm:text-sm font-medium flex items-center gap-2 rounded-t-lg border-t border-l border-r focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 transition whitespace-nowrap z-10 ${
                 activeTab === 'changes'
                   ? 'border-neutral-200 bg-white text-neutral-900 -mb-px'
                   : 'border-neutral-300 bg-neutral-100 text-neutral-500 hover:text-neutral-700 hover:bg-neutral-50 hover:border-neutral-400 mb-0 border-b-0'
               }`}
-            >
-              <span className="w-4 h-4">🔄</span>
-              <span className="hidden sm:inline">Explain&nbsp;Recent&nbsp;Changes</span>
-              <span className="sm:hidden">Explain&nbsp;Changes</span>
-            </button>
-          </div>
+              >
+                <span className="w-4 h-4">🔄</span>
+                <span className="hidden sm:inline">Explain&nbsp;Recent&nbsp;Changes</span>
+                <span className="sm:hidden">Explain&nbsp;Changes</span>
+              </button>
+            </div>
 
-          {/* Main Container */}
-          <div className="bg-white/60 backdrop-blur-lg border border-neutral-200 border-t border-neutral-200 rounded-2xl rounded-tl-none shadow-lg p-8 sm:p-10 space-y-6">
+            {/* Main Container */}
+            <div className="bg-white/60 backdrop-blur-lg border border-neutral-200 border-t border-neutral-200 rounded-2xl rounded-tl-none shadow-lg p-8 sm:p-10 space-y-6 max-w-2xl mx-auto">
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label htmlFor="github-link" className="sr-only">GitHub URL</label>
-                <div className="relative">
-                  <input
-                    id="github-link"
-                    type="url"
-                    value={githubUrl}
-                    onChange={(e) => setGithubUrl(e.target.value)}
-                    placeholder={mockMode ? "GitHub URL (optional in mock mode)" : "Paste a Github link to a file or folder..."}
-                    className="w-full bg-neutral-50 placeholder-neutral-400 border border-neutral-200 text-neutral-900 text-sm rounded-lg px-4 py-3 pr-12 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-                  />
-                  <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                    <span className="w-4 h-4 text-neutral-400">🔗</span>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <label htmlFor="github-link" className="sr-only">GitHub URL</label>
+                  <div className="relative">
+                    <input
+                      id="github-link"
+                      type="url"
+                      value={githubUrl}
+                      onChange={(e) => setGithubUrl(e.target.value)}
+                      placeholder={mockMode ? "GitHub URL (optional in mock mode)" : "Paste a Github link to a file or folder..."}
+                      className="w-full bg-neutral-50 placeholder-neutral-400 border border-neutral-200 text-neutral-900 text-sm rounded-lg px-4 py-3 pr-12 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                    />
+                    <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                      <span className="w-4 h-4 text-neutral-400">🔗</span>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="flex flex-col sm:flex-row gap-3">
-                <Dropdown
-                  value={proficiency}
-                  options={['Beginner', 'Intermediate', 'Advanced']}
-                  onChange={setProficiency}
-                  icon="🎓"
-                />
+                <div className="w-full">
+                  <div className="flex flex-col sm:flex-row items-center gap-3 w-full text-xs sm:text-sm">
+                    <div className="flex-1 flex gap-3 w-full">
+                      <Dropdown
+                        value={proficiency}
+                        options={['Beginner', 'Intermediate', 'Advanced']}
+                        onChange={setProficiency}
+                        icon="🎓"
+                        dropdownClassName="px-3 py-2 sm:px-4 sm:py-3"
+                      />
+                      <Dropdown
+                        value={depth}
+                        options={['Key Parts', 'Full Explanation', 'Concise Summary']}
+                        onChange={setDepth}
+                        icon="📚"
+                        dropdownClassName="px-3 py-2 sm:px-4 sm:py-3"
+                      />
+                    </div>
+                    <button
+                      id="generate-btn"
+                      type="submit"
+                      disabled={loading}
+                      className="w-full sm:w-auto sm:ml-auto px-3 py-2 sm:px-6 sm:py-3 bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 rounded-lg font-semibold flex items-center justify-center gap-2 text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 disabled:bg-indigo-400 disabled:cursor-not-allowed text-xs sm:text-sm"
+                    >
+                      {loading ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                          <span>Generating...</span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="w-4 h-4">✨</span>
+                          <span>Generate</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
 
-                <Dropdown
-                  value={depth}
-                  options={['Key Parts', 'Full Explanation', 'Concise Summary']}
-                  onChange={setDepth}
-                  icon="📚"
-                />
-
-                <button
-                  id="generate-btn"
-                  type="submit"
-                  disabled={loading}
-                  className="sm:w-auto w-full px-6 py-3 bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 disabled:bg-indigo-400 disabled:cursor-not-allowed"
-                >
-                  {loading ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                      <span>Generating...</span>
-                    </>
-                  ) : (
-                    <>
-                      <span className="w-4 h-4">✨</span>
-                      <span>Generate</span>
-                    </>
-                  )}
-                </button>
-              </div>
-
-              {error && (
-                <pre
-                  id="response-box"
-                  aria-live="polite"
-                  className="bg-red-50 border border-red-200 rounded-lg p-4 text-xs font-mono whitespace-pre-wrap text-red-700"
-                >{error}</pre>
-              )}
-            </form>
+                {error && (
+                  <pre
+                    id="response-box"
+                    aria-live="polite"
+                    className="bg-red-50 border border-red-200 rounded-lg p-4 text-xs font-mono whitespace-pre-wrap text-red-700"
+                  >{error}</pre>
+                )}
+              </form>
+            </div>
           </div>
         </div>
       </section>
 
       {/* HOW IT WORKS */}
-      <section id="how" className="max-w-5xl mx-auto px-6 pt-8 pb-16 mb-8">
-        <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-center mb-12">
+      <section id="how" className="max-w-5xl mx-auto px-6 pt-4 sm:pt-8 pb-4 sm:pb-16 mb-4 sm:mb-8">
+        <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-center mb-6 sm:mb-12">
           How&nbsp;it&nbsp;Works
         </h2>
         <div className="grid md:grid-cols-3 gap-8">
