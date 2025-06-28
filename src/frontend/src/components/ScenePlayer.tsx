@@ -142,25 +142,29 @@ const ScenePlayer: React.FC<ScenePlayerProps> = ({
                   </button>
                 </div>
                 <div className="max-h-80 overflow-auto">
-                  {script.scenes.map((s, idx) => (
-                    <button
-                      key={idx}
-                      className={`w-full text-left px-4 py-3 hover:bg-neutral-50 transition border-b border-neutral-50 last:border-b-0 ${
-                        idx === currentSceneIndex ? 'bg-indigo-50 text-indigo-900 font-medium' : 'text-neutral-700'
-                      }`}
-                      onClick={() => {
-                        setCurrentSceneIndex(idx);
-                        setTocOpen(false);
-                      }}
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className="text-xs bg-neutral-200 text-neutral-600 px-2 py-1 rounded-full min-w-[24px] text-center">
-                          {idx + 1}
-                        </span>
-                        <span className="text-sm truncate">{s.title}</span>
-                      </div>
-                    </button>
-                  ))}
+                  {script.scenes.map((s, idx) => {
+                    const isChapter = s.title.startsWith('Chapter');
+                    const isSkipped = s.title.startsWith('Skipped Files');
+                    return (
+                      <button
+                        key={idx}
+                        className={`w-full text-left px-4 py-3 hover:bg-neutral-50 transition border-b border-neutral-50 last:border-b-0 ${
+                          idx === currentSceneIndex ? 'bg-indigo-50 text-indigo-900 font-medium' : 'text-neutral-700'
+                        }`}
+                        onClick={() => {
+                          setCurrentSceneIndex(idx);
+                          setTocOpen(false);
+                        }}
+                      >
+                        <div className={`flex items-center gap-3 ${!isChapter && !isSkipped ? 'ml-4' : ''}`}>
+                          <span className="text-xs bg-neutral-200 text-neutral-600 px-2 py-1 rounded-full min-w-[24px] text-center">
+                            {idx + 1}
+                          </span>
+                          <span className="text-sm truncate">{s.title}</span>
+                        </div>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             )}

@@ -169,9 +169,11 @@ const IndexPage: React.FC = () => {
           <div className="absolute inset-x-0 top-[-30%] h-[100vh] bg-gradient-to-b from-indigo-100 via-white to-white"></div>
         </div>
 
-        <div className="max-w-4xl mx-auto px-4 sm:pt-24 pt-20">
-          <h1 className="text-center text-5xl md:text-6xl font-semibold tracking-tight mb-6">
-            Understand&nbsp;<span className="font-mono text-indigo-600">&lt;Code&gt;</span>&nbsp;Faster
+        <div className="max-w-4xl mx-auto px-4 sm:pt-24 pt-20 w-full max-w-full overflow-x-hidden">
+          <h1 className="text-center w-full whitespace-nowrap text-[clamp(1.25rem,8vw,2.5rem)] font-semibold tracking-tight mb-6">
+            Understand&nbsp;
+            <span className="font-mono text-indigo-600 whitespace-nowrap">&lt;Code&gt;</span>
+            &nbsp;Faster
           </h1>
           <p className="text-center text-lg text-neutral-600 max-w-3xl mx-auto mb-10">
             Drop any GitHub link and get an AI-crafted walkthrough that turns complex code into clear, bite-sized explanations.
