@@ -78,6 +78,7 @@ const IndexPage: React.FC = () => {
   const [showComingSoonDialog, setShowComingSoonDialog] = useState(false);
   const [mockMode, setMockMode] = useState<boolean | null>(null);
   const [configLoading, setConfigLoading] = useState(true);
+  const [email, setEmail] = useState('');
   const navigate = useNavigate();
 
   // Check mock mode status on component mount
@@ -111,6 +112,7 @@ const IndexPage: React.FC = () => {
     }
     setLoading(true);
     setError(null);
+    console.log(`[USER] New user started generation for ${githubUrl} and has e-mail ${email}`);
     try {
       const response = await fetch(getApiUrl('/api/generate-script'), {
         method: 'POST',
@@ -119,7 +121,8 @@ const IndexPage: React.FC = () => {
           github_url: githubUrl || (mockMode ? 'https://github.com/mock/repo' : ''),
           proficiency: proficiency.toLowerCase(),
           depth: depth.toLowerCase().replace(' ', '-'),
-          save_to_disk: true
+          save_to_disk: true,
+          email
         }),
       });
       if (!response.ok) {
@@ -231,6 +234,23 @@ const IndexPage: React.FC = () => {
                     />
                     <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                       <span className="w-4 h-4 text-neutral-400">🔗</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label htmlFor="email" className="sr-only">Email (optional)</label>
+                  <div className="relative mt-3">
+                    <input
+                      id="email"
+                      type="email"
+                      value={email}
+                      onChange={e => setEmail(e.target.value)}
+                      placeholder="Enter your email to get a link to your lesson (optional)"
+                      className="w-full bg-neutral-50 placeholder-neutral-400 border border-neutral-200 text-neutral-900 text-sm rounded-lg px-4 py-3 pr-12 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                    />
+                    <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                      <span className="w-4 h-4 text-neutral-400">✉️</span>
                     </div>
                   </div>
                 </div>

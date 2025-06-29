@@ -159,6 +159,7 @@ class ScriptRequest(BaseModel):
     depth: str = "key-parts"
     file_types: Optional[List[str]] = None
     save_to_disk: bool = True
+    email: Optional[str] = None
 
 class ScriptWithID(BaseModel):
     script_id: str
@@ -169,6 +170,7 @@ async def generate_script(request: ScriptRequest):
     print(f"[API] /generate-script endpoint called")
     print(f"[API] Request: URL={request.github_url}, Proficiency={request.proficiency}, Depth={request.depth}")
     print(f"[API] File types: {request.file_types}, Save to disk: {request.save_to_disk}")
+    print(f"[USER] New user started generation for {request.github_url} and has e-mail {request.email}")
     
     # Check environment variables
     USE_JSON_SCRIPT_PROMPT = os.environ.get("USE_JSON_SCRIPT_PROMPT", "false").lower() == "true"
