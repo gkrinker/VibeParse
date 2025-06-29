@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import RedirectResponse
 from .routes import code, script, test
 
 app = FastAPI(
@@ -24,7 +25,7 @@ app.include_router(test.router, prefix="/api", tags=["test"])
 
 @app.get("/")
 async def root():
-    return {"message": "Welcome to VibeParse API"}
+    return RedirectResponse(url="https://vibeparse-frontend.onrender.com")
 
 @app.get("/health")
 async def health_check():
